@@ -1,0 +1,20 @@
+<!-- harvester.html -->
+{% extends 'base.html' %}
+
+{% block page_header %} Harvesting... {% endblock page_header %}
+
+{% block content %}
+	<ul>
+	{% for i in records %}
+		<h4>{{ i.getRecord }} </h4>
+		<li>{{ i.title.0 }}
+			
+			<ul>
+			{% for key, value in i.iteritems %}
+				<li>{{ key }}-> {{ value }}</li>
+			{% endfor %}
+			</ul>
+		</li>
+	{% endfor %}
+	</ul>
+{% endblock content %}
