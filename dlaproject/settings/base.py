@@ -24,8 +24,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'oaiharvests',
-    'dlasite',
+    # 'oaiharvests', IN DEVOLOPMENT
+    # 'dlasite', IN DEVELOPMENT
 
     'south',
 )

@@ -4,17 +4,21 @@
 {% block page_header %} Harvesting... {% endblock page_header %}
 
 {% block content %}
-	<ul>
+	<ol>
 	{% for i in records %}
-		<h4>{{ i.getRecord }} </h4>
-		<li>{{ i.title.0 }}
-			
+
+		<li> <h3> {{ i.0.set.0 }} </h3>
 			<ul>
-			{% for key, value in i.iteritems %}
-				<li>{{ key }}-> {{ value }}</li>
+			{% for key, value in i.0.iteritems %}
+				<li> {{ key }}-> {{ value }} </li>
+			{% endfor %}
+			</ul>
+			<ul>
+			{% for key, value in i.1.iteritems %}
+				<li> {{ key }}-> {{ value.0 }} </li>
 			{% endfor %}
 			</ul>
 		</li>
 	{% endfor %}
-	</ul>
+	</ol>
 {% endblock content %}

@@ -14,5 +14,5 @@ class CollectionListView(ListView):
 class CollectionView(DetailView):
 	pass
 
-class RecordView(DetailView):
+class ItemView(DetailView):
 	pass
