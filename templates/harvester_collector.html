@@ -5,10 +5,10 @@
 
 {% block content %}
 	<h3> {{ collections | length }} Collections. Choose one. </h3>
-	{% for i in collections %}
-		<h3> {% if i.setType == 'com' %} Community {% else %} Collection {% endif %}</h3>
+	{% for key, value in collections.iteritems %}
+		<h3>  Collection </h3>
 		<h5>
-			{{ i.setSpec }} -- {{ i.setName }}
+			{{ key }} -- {{ value }}
 		</h5>
 	{% endfor %}
 {% endblock content %}

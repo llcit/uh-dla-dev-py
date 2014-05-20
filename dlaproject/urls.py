@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^item/(?P<pk>\d+)$', ItemView.as_view(), name='item'),
 
     url(r'^harvester/collector/$', HarvesterAddRepoView.as_view(), name='collector'),
-    url(r'^harvester/$', HarvesterView.as_view(), name='harvester'),
+    url(r'^harvester/(?P<set>\w+)$', HarvesterView.as_view(), name='harvester'),
     
     url(r'^admin/', include(admin.site.urls)),
 )
