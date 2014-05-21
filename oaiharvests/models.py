@@ -6,7 +6,7 @@ class MetadataElement(models.Model):
 
     """A tuple containing an element_type (dublin core) and its data"""
     element_type = models.CharField(max_length=256)
-    element_data = models.TextField()
+    element_data = models.TextField(default=' ')
 
     def __unicode__(self):
         return '%s -> %s' % (self.element_type, self.element_data)
@@ -36,6 +36,9 @@ class Community(TimeStampedModel):
     identifier = models.CharField(primary_key=True, max_length=256)
     name = models.CharField(max_length=256, blank=True, default=None)
     repository = models.ForeignKey(Repository)
+
+    def collections(self):
+        return Collection.objects.filter(community=self)
 
     def __unicode__(self):
         return '%s -> %s' % (self.identifier, self.name)

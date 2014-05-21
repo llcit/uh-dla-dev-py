@@ -12,22 +12,28 @@
 		    {% endfor %}
 		</ul>
 	{% endif %}
+	<form method="post" action="/harvest/collect/"> {% csrf_token %}
 
-	<h3>{{ repository.repository.name }}</h3>
-	<h5>{{ repository.repository.base_url }}</h5>
-	<h5>{{ repository.name }} <small>{{ repository.identifier }}</small></h5>
+		<input name="repoid" type="hidden" value="{{ repository.identifier }}">
 
 
-	<h3>Current collections registered for this site:</h3>
-	{% for i in registered_collections %}
-		<h5>{{ i }}</h5>
-	{% endfor %}
+		<h3>{{ repository.name }} collections currently registered on this site:</h3>
+		{% for i in registered_collections %}
+			<h5><input type="checkbox">Reharvest {{ i }}</h5>
+		{% empty %}
+			<h5>No registered collections were found on this site for {{ repository.name }} on {{ repository.repository.name }}</h5>
+		{% endfor %}
 
-	<h3> There are {{ collections | length }} collections available in {{ repository.repository_name }}{% if repository.community_identifier %} in {{ repository.community_identifier }}{% endif %}.</h3>
-	{% for key, value in collections.items %}
-		<h5>{{ value }} <small>{{ key }}</small></h5>
-	{% empty %}
-		<h3> No collections found. See error messages.</h3>
-	{% endfor %}
-
+		<h3> Unharvested collections in {{ repository.name }} @ {{ repository.repository.name }}:</h3>
+		{% for key, value in unregistered_collections.items %}
+			<h5>
+				<input name="set_id" type="checkbox" value="{{ key }}">
+				Begin Harvesting {{ value }} <small>{{ key }}</small>
+			</h5>
+				<input name="set_name" type="hidden" value="{{ value }}"> 
+		{% empty %}
+			<h5> No collections found for {{ repository.name }} on {{ repository.repository.name }}</h5>
+		{% endfor %}
+		<input type="submit" value="submit">
+	</form>
 {% endblock content %}
