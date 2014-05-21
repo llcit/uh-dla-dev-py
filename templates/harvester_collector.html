@@ -4,11 +4,30 @@
 {% block page_header %} Harvest Collector {% endblock page_header %}
 
 {% block content %}
-	<h3> {{ collections | length }} Collections. Choose one. </h3>
-	{% for key, value in collections.iteritems %}
-		<h3>  Collection </h3>
-		<h5>
-			{{ key }} -- {{ value }}
-		</h5>
+
+	{% if messages %}
+		<ul class="messages">
+		    {% for message in messages %}
+		    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+		    {% endfor %}
+		</ul>
+	{% endif %}
+
+	<h3>{{ repository.repository.name }}</h3>
+	<h5>{{ repository.repository.base_url }}</h5>
+	<h5>{{ repository.name }} <small>{{ repository.identifier }}</small></h5>
+
+
+	<h3>Current collections registered for this site:</h3>
+	{% for i in registered_collections %}
+		<h5>{{ i }}</h5>
 	{% endfor %}
+
+	<h3> There are {{ collections | length }} collections available in {{ repository.repository_name }}{% if repository.community_identifier %} in {{ repository.community_identifier }}{% endif %}.</h3>
+	{% for key, value in collections.items %}
+		<h5>{{ value }} <small>{{ key }}</small></h5>
+	{% empty %}
+		<h3> No collections found. See error messages.</h3>
+	{% endfor %}
+
 {% endblock content %}

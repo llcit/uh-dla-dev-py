@@ -1,6 +1,7 @@
 Django==1.6.5
 South==0.8.4
 Unipath==1.0
+django-model-utils==2.0.3
 lxml==3.3.5
 psycopg2==2.5.3
 pyoai==2.4.4
