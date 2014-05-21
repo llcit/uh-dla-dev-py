@@ -4,7 +4,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from dlasite.views import HomeView, CollectionListView, CollectionView, ItemView
-from oaiharvests.views import HarvesterView, RepositoryListView, HarvesterBrowseRepoView
+from oaiharvests.views import HarvesterCommunityListView, HarvesterCommunityView, HarvesterCollectionView
 
 urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home'),
@@ -12,9 +12,9 @@ urlpatterns = patterns('',
     url(r'^collection/(?P<pk>\d+)$', CollectionView.as_view(), name='collection'),
     url(r'^item/(?P<pk>\d+)$', ItemView.as_view(), name='item'),
 
-	url(r'^harvest/repositories/$', RepositoryListView.as_view(), name='repo_list'),
-    url(r'^harvest/collector/(?P<pk>\w+)$', HarvesterBrowseRepoView.as_view(), name='repo_browser'),
-    url(r'^harvest/collect/$', HarvesterView.as_view(), name='harvester'),
+	url(r'^harvest/repositories/$', HarvesterCommunityListView.as_view(), name='repo_list'),
+    url(r'^harvest/repository/(?P<pk>\w+)$', HarvesterCommunityView.as_view(), name='repo'),
+    url(r'^harvest/collect/$', HarvesterCollectionView.as_view(), name='collect'),
     
     url(r'^admin/', include(admin.site.urls)),
 )

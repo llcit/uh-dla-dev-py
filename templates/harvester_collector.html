@@ -4,7 +4,6 @@
 {% block page_header %} Harvest Collector {% endblock page_header %}
 
 {% block content %}
-
 	{% if messages %}
 		<ul class="messages">
 		    {% for message in messages %}
@@ -12,27 +11,24 @@
 		    {% endfor %}
 		</ul>
 	{% endif %}
-	<form method="post" action="/harvest/collect/"> {% csrf_token %}
+
+	<form method="post" action=""> {% csrf_token %}
 
 		<input name="repoid" type="hidden" value="{{ repository.identifier }}">
+		<input name="collection_dict" type="hidden" value="{{ unregistered_collections }}">
 
 
-		<h3>{{ repository.name }} collections currently registered on this site:</h3>
+		<h3>Currently harvested collections from {{ repository.name }} @ {{ repository.repository.name }}:</h3>
 		{% for i in registered_collections %}
 			<h5><input type="checkbox">Reharvest {{ i }}</h5>
-		{% empty %}
-			<h5>No registered collections were found on this site for {{ repository.name }} on {{ repository.repository.name }}</h5>
 		{% endfor %}
 
-		<h3> Unharvested collections in {{ repository.name }} @ {{ repository.repository.name }}:</h3>
+		<h3> Unharvested collections from {{ repository.name }} @ {{ repository.repository.name }}:</h3>
 		{% for key, value in unregistered_collections.items %}
 			<h5>
-				<input name="set_id" type="checkbox" value="{{ key }}">
+				<input name="set_id" type="radio" value="{{ key }}">
 				Begin Harvesting {{ value }} <small>{{ key }}</small>
 			</h5>
-				<input name="set_name" type="hidden" value="{{ value }}"> 
-		{% empty %}
-			<h5> No collections found for {{ repository.name }} on {{ repository.repository.name }}</h5>
 		{% endfor %}
 		<input type="submit" value="submit">
 	</form>
