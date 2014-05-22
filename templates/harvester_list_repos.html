@@ -17,7 +17,7 @@
 	
 	{% for repo in object_list %}
 		<h3> {{ repo.repository.name }} <small> {{ repo.repository.base_url }} </small> </h3>
-	    <h5> <a href="{% url 'repo' repo.identifier %}">{{ repo.name }}</a> </h5>
+	    <h5> <a href="{% url 'community' repo.identifier %}">{{ repo.name }}</a> </h5>
 	{% empty %}
 	    <h3>No repos registered</h3>
 	{% endfor %}

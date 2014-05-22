@@ -43,7 +43,7 @@ class Collection(TimeStampedModel):
     community = models.ForeignKey(Community, null=True, blank=True)
 
     def __unicode__(self):
-        return '%s -> %s' % (self.identifier, self.name)
+        return '%s' % self.name
 
     def get_absolute_url(self):
         pass  # return reverse('collection', args=[str(self.id)])
@@ -57,8 +57,19 @@ class Record(TimeStampedModel):
     hdr_datestamp = models.DateTimeField()
     hdr_setSpec = models.ForeignKey(Collection)
 
+    def remove_data(self):
+        data = MetadataElement.objects.filter(record=self)
+        try:
+            self.metadataelement_set.remove(data)
+        except:
+            pass
+        return
+
+    def metadata_items(self):
+        return self.metadataelement_set.all()
+
     def __unicode__(self):
-        return self.identifier
+        return '%s...%s'%(self.hdr_setSpec, self.identifier[20:])
 
     def get_absolute_url(self):
         pass  # return reverse('collection', args=[str(self.id)])
@@ -66,18 +77,17 @@ class Record(TimeStampedModel):
 class MetadataElement(models.Model):
 
     """A tuple containing an element_type (dublin core) and its data"""
-    record = models.ForeignKey(Record)
+    record = models.ForeignKey(Record, null=True)
     element_type = models.CharField(max_length=256)
-    element_data = models.TextField(default=' ')
+    element_data = models.TextField(default='')
 
     def __unicode__(self):
-        return '%s -> %s' % (self.element_type, self.element_data)
+        return u'%s'%self.element_type
 
     def get_absolute_url(self):
         pass  # return reverse('collection', args=[str(self.id)])
 
-
-
 class HarvestRegistration(TimeStampedModel):
-    """ Records of harvest time by collection """
+    """ Records of harvested collections """
     collection = models.ForeignKey(Collection)
+    harvest_date = models.DateTimeField()

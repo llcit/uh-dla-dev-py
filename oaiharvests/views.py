@@ -5,6 +5,8 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib import messages
+import json
+from itertools import tee
 
 from oaipmh.client import Client
 from oaipmh.metadata import MetadataRegistry, oai_dc_reader
@@ -20,21 +22,30 @@ class HarvesterCommunityListView(ListView):
         # context['communities'] = selt.get_object().set_community.all()
         return context
 
-
 class HarvesterCommunityView(DetailView):
-    """
-    Browse an institutional repository community for selective harvesting.  A repo is a
-    community collection within the institutional repo.
+    model = Community
+    template_name = 'harvester_community_repo.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(HarvesterCommunityView, self).get_context_data(**kwargs)
+        context['collections'] = self.get_object().collection_set.all()
+        return context
 
-    Expected model instance is a pk representing a community collection identifier
+class HarvesterRegistrationView(DetailView):
+    """
+    Creates or updates Collection objects from an institutional repository community for future 
+    harvesting. The source of the collections is a community set within the institutional repo.
+
+    Expected model instance is a pk representing a community collection identifier.
+
+    Expected outcome are new Collection instances stored in local db.
     """
     model = Community
     template_name = 'harvester_collector.html'
-    name_index = dict()
-
+ 
     def get_context_data(self, **kwargs):
-        context = super(
-            HarvesterCommunityView, self).get_context_data(**kwargs)
+        self.context = super(
+            HarvesterRegistrationView, self).get_context_data(**kwargs)
         repo = self.get_object()        
 
         registry = MetadataRegistry()
@@ -50,138 +61,163 @@ class HarvesterCommunityView(DetailView):
                 self.request, messages.ERROR, 'Repository or Collection with id ' + repo_id + ' was not found.')
             return context
 
-        """ Filter collections from records to build list of collections in the SET """
-        registered_id_list = repo.collections().values_list(
-            'identifier', flat=True)
-        remote_collection_identifiers = []
+        """ Filter records to build list of collections in the SET """
+        remote_collections = dict()
         for i in records:
             for j in i.setSpec():
                 if j[:3] == 'col':
-                    if j not in registered_id_list and j not in remote_collection_identifiers:
-                        remote_collection_identifiers.append(j)
+                    remote_collections[j] = ''
 
-        """ Build dictionary (id, human readable name) of collections for possible harvesting """
+        """ Build collection object (id and human readable name) """
         sets = client.listSets()
-        collections = dict()
         for i in sets:
-            if i[0] in remote_collection_identifiers:
-                collections[i[0]] = i[1]
+            if i[0] in remote_collections:
+                """ Retrieve or create a collection obj """
+                try:
+                    collection = Collection.objects.get(pk=i[0])
+                except:
+                    collection = Collection()
+                    collection.identifier = i[0]
+                    collection.name = i[1]               
+                    collection.community = repo
 
-        context['repository'] = repo
-        context['registered_collections'] = repo.collections()
-        context['unregistered_collections'] = collections
+                collection.save()                                                
+
+        self.context['registered_collections'] = repo.collections()
+        return self.context
+
+
+
+
+class HarvestRecordsView(DetailView):
+    """ Harvest records in a single collection """
+    model = Collection
+    template_name = 'harvester_collection.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            HarvestRecordsView, self).get_context_data(**kwargs)
+        collection = self.get_object()
+        repo = collection.community.repository
+
+        """ Create OAI client from repo object """
+        registry = MetadataRegistry()
+        registry.registerReader('oai_dc', oai_dc_reader)
+        client = Client(repo.base_url, registry)
+
+
+        """ Harvest each record in collection """
+        records = client.listRecords(
+            metadataPrefix='oai_dc', set=collection.identifier)       
+        
+        for i in records:
+            """ Read Header """
+            try:
+                record = Record.object.get(collection=collection)
+                record.remove_data()
+            except:                
+                record = Record()  
+
+            # record.identifier = i[0].identifier()
+            # record.hdr_datestamp = i[0].datestamp()
+            # record.hdr_setSpec = collection
+            # record.save()  
+
+            # """ Read Metadata """
+            
+            # dataelements = i[1].getMap()
+            # for key in dataelements:
+            #     element = MetadataElement()
+            #     element.record = record
+            #     element.element_type = key
+            #     data = dataelements[key]
+            #     datastring = ''
+            #     for i in data:
+            #         datastring += i
+            #     print datastring
+            #     element.element_data = datastring
+            #     element.save()
+        
+        context['records'] = self.get_object().record_set.all()                
         return context
 
-    def post(self, request, *args, **kwargs):
-        try:
-            repo = Community.objects.get(pk=request.POST['repoid'])
-        except:
-            pass
-        selected_set = request.POST['set_id']
-        selected_set_name = ''
+class HarvesterCollectionView(DetailView):
+    """Show records from a given set"""
+    model = Collection
+    template_name = 'harvester_collection.html'
 
-        registry = MetadataRegistry()
-        registry.registerReader('oai_dc', oai_dc_reader)
-        client = Client(repo.repository.base_url, registry)
-
-        sets = client.listSets()
-        
-        for i in sets:
-            if i[0] == selected_set:
-                selected_set_name = i[1]
-                break
-        try:
-            collection = Collection.objects.get(pk=selected_set)
-        except:
-            collection = Collection()
-            collection.identifier = selected_set
-            collection.name = selected_set_name
-            collection.community = repo
-
-        collection.save()
-
-        """ Harvest each record """
-        records = client.listRecords(
-            metadataPrefix='oai_dc', set=selected_set)
-        for i in records:
-            record = Record()
-            """ Read Header """
-            record.identifier = i[0].identifier()
-            record.hdr_datestamp = i[0].datestamp()
-            record.save()
-            record.hdr_setSpec.add(collection)
-
-            """ Read Metadata """
-            for key in i[1].getMap():
-                element = MetadataElement()
-                element.record = record
-                element.element_type = key
-                element.element_data = i[1].getField(key) or ' '
-                element.save()
-        
-        return HttpResponseRedirect(reverse('home'))
+    def get_context_data(self, **kwargs):
+        context = super(HarvesterCollectionView, self).get_context_data(**kwargs)
+        context['records'] = self.get_object().record_set.all()
+        return context
 
 
 
+    # def post(self, request, *args, **kwargs):
+    #     """ Create OAI client from repo object """
+    #     repo = self.get_object().community.repository
 
-class HarvesterCollectionView(TemplateView):
+    #     registry = MetadataRegistry()
+    #     registry.registerReader('oai_dc', oai_dc_reader)
+    #     client = Client(repo.repository.base_url, registry)
 
-    """Harvest records from a given set"""
-    template_name = 'harvester_records.html'
+    #     """ Filter POST data to build list of selected collections to harvest """
+    #     harvest_list = []
+    #     for i in request.POST:
+    #         if i[:3] == 'col':
+    #             harvest_list.append(i) # -->request.POST[harvest_list[0]]
 
-    def post(self, request, *args, **kwargs):
-        try:
-            repo = Community.objects.get(pk=request.POST['repoid'])
-        except:
-            pass
+    #     """ Iterate over list of selected collections adding to local storage each iteration """
+    #     for i in harvest_list:
+    #         selected_set_id = i
+    #         selected_set_name = request.POST[i] 
+    #         print selected_set_id, selected_set_name           
 
-        selected_set = request.POST['set_id']
-    
+    #         """ Retrieve or create a collection obj """
+    #         try:
+    #             collection = Collection.objects.get(pk=selected_set_id)
+    #         except:
+    #             collection = Collection()
+    #             collection.identifier = selected_set_id
+    #             collection.name = selected_set_name
+    #             collection.community = repo
 
-    
-        registry = MetadataRegistry()
-        registry.registerReader('oai_dc', oai_dc_reader)
-        client = Client(repo.repository.base_url, registry)
+    #         collection.save()
 
-        # collection_obj = client.getRecord(identifier=selected_set, metadataPrefix='oai_dc' )
-        try:
-            collection = Collection.objects.get(pk=selected_set)
-        except:
-            collection = Collection()
-            collection.identifier = selected_set
-            # collection.name = request.POST['set_name']
-            collection.community = repo
-
-        try:
-            pass
-            # print collection
-            # collection.save()
-        except:
-            pass
-
-        records = client.listRecords(
-            metadataPrefix='oai_dc', set=selected_set)
-
-
-
-        for i in records:
-            record = Record()
-            """ Read Header """
-            record.identifier = i[0].identifier()
-            record.hdr_datestamp = i[0].datestamp()
-            record.save()
-            # record.hdr_setSpec = collection
-
-            """ Read Metadata """
-            for key in i[1].getMap():
-                element = MetadataElement()
-                element.element_type = key
-                element.element_data = i[1].getField(key) or ' '
-                element.save()
+    #         """ Harvest each record in remote collection """
+    #         records = client.listRecords(
+    #             metadataPrefix='oai_dc', set=selected_set_id)
+            
+    #         for i in records:
+    #             record = Record()
+    #             """ Read Header """
+    #             record.identifier = i[0].identifier()
+    #             record.hdr_datestamp = i[0].datestamp()
+    #             record.hdr_setSpec = collection
+    #             record.save()                
                 
-                record.metadata.add(element)
+    #             record.remove_data()
+
+    #             """ Read Metadata """
+    #             for key in i[1].getMap():
+    #                 element = MetadataElement()
+    #                 element.record = record
+    #                 element.element_type = key
+    #                 data = i[1].getField(key)
+    #                 # datastring = ''
+    #                 # for j in data: 
+    #                 #     # print j
+    #                 #     datastring += j + ', '
+    #                 element.element_data = data
+    #                 element.save()
         
-        return HttpResponseRedirect(reverse('home'))
+    #     # return HttpResponseRedirect(reverse('home'))
+    #     response_data = []
+    #     response_data.append('added collection for harvesting')
+    #     # return HttpResponse(json.dumps(response_data), content_type="application/json")
+    #     return render(request, self.template_name, self.context)
+
+
 
 
 # Sample request for a single collection
