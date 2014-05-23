@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
+from django import forms
+
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
 from django.contrib import messages
 import json
 from itertools import tee
@@ -12,26 +16,135 @@ from oaipmh.client import Client
 from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 
 from .models import Repository, Community, Collection, MetadataElement, Record
+from .forms import CreateRepositoryForm
+
+class RepositoryListView(ListView):
+    model = Repository
+    template_name = 'repository_list.html'
+
+
+class RepositoryView(DetailView):
+    model = Repository
+    template_name = 'repository_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RepositoryView, self).get_context_data(**kwargs)
+        context['collections'] = Collection.objects.filter(
+            community__repository=self.get_object()).order_by('community')
+        return context
+
+
+class RepositoryCreateView(CreateView):
+    model = Repository
+    template_name = 'repository_form.html'
+    form_class = CreateRepositoryForm
+
+    def verify_remote_repository(self, **kwargs):
+        registry = MetadataRegistry()
+        registry.registerReader('oai_dc', oai_dc_reader)
+        try:
+            client = Client(kwargs.pop('base_url'), registry)
+            server = client.identify()
+            return server
+        except:
+            return None
+
+    def form_valid(self, form):
+        # server = self.verify_remote_repository(base_url=form.cleaned_data['base_url'])
+        # if server:
+        #     return super(RepositoryCreateView, self).form_valid(form)
+        return super(RepositoryCreateView, self).form_valid(form)
+
+
+
+    def get_context_data(self, **kwargs):
+        context = super(RepositoryCreateView, self).get_context_data(**kwargs)
+        context['view_type'] = 'add'
+        return context
+
+class RepositoryUpdateView(UpdateView):
+    model = Repository
+    template_name = 'repository_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RepositoryUpdateView, self).get_context_data(**kwargs)
+        context['view_type'] = 'edit'
+        return context
+
+class RepositoryDeleteView(DeleteView):
+    model = Repository
+    success_url = reverse_lazy('repository_list')
+    template_name = 'repository_confirm_delete.html'
+
+
+class CommunityView(DetailView):
+    model = Community
+    template_name = 'community_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CommunityView, self).get_context_data(**kwargs)
+        context['collections'] = self.get_object().list_collections()
+        return context
+
+
+class CommunityCreateView(CreateView):
+    model = Community
+
+
+class CommunityUpdateView(UpdateView):
+    model = Community
+
+
+class CommunityDeleteView(DeleteView):
+    model = Community
+
+
+class CollectionView(DetailView):
+    model = Collection
+    template_name = 'collection_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CollectionView, self).get_context_data(**kwargs)
+        context['num_records'] = self.get_object().count_records()
+        return context
+
+
+class CollectionCreateView(CreateView):
+    model = Collection
+
+
+class CollectionUpdateView(UpdateView):
+    model = Collection
+
+
+class CollectionDeleteView(DeleteView):
+    model = Collection
+
 
 class HarvesterCommunityListView(ListView):
     model = Community
     template_name = 'harvester_list_repos.html'
 
     def get_context_data(self, **kwargs):
-        context = super(HarvesterCommunityListView, self).get_context_data(**kwargs)
+        context = super(
+            HarvesterCommunityListView, self).get_context_data(**kwargs)
         # context['communities'] = selt.get_object().set_community.all()
         return context
+
 
 class HarvesterCommunityView(DetailView):
     model = Community
     template_name = 'harvester_community_repo.html'
-    
+
     def get_context_data(self, **kwargs):
-        context = super(HarvesterCommunityView, self).get_context_data(**kwargs)
+        context = super(
+            HarvesterCommunityView, self).get_context_data(**kwargs)
         context['collections'] = self.get_object().collection_set.all()
         return context
 
+
 class HarvesterRegistrationView(DetailView):
+
     """
     Creates or updates Collection objects from an institutional repository community for future 
     harvesting. The source of the collections is a community set within the institutional repo.
@@ -42,11 +155,11 @@ class HarvesterRegistrationView(DetailView):
     """
     model = Community
     template_name = 'harvester_collector.html'
- 
+
     def get_context_data(self, **kwargs):
         self.context = super(
             HarvesterRegistrationView, self).get_context_data(**kwargs)
-        repo = self.get_object()        
+        repo = self.get_object()
 
         registry = MetadataRegistry()
         registry.registerReader('oai_dc', oai_dc_reader)
@@ -78,18 +191,17 @@ class HarvesterRegistrationView(DetailView):
                 except:
                     collection = Collection()
                     collection.identifier = i[0]
-                    collection.name = i[1]               
+                    collection.name = i[1]
                     collection.community = repo
 
-                collection.save()                                                
+                collection.save()
 
         self.context['registered_collections'] = repo.collections()
         return self.context
 
 
-
-
 class HarvestRecordsView(DetailView):
+
     """ Harvest records in a single collection """
     model = Collection
     template_name = 'harvester_collection.html'
@@ -105,26 +217,25 @@ class HarvestRecordsView(DetailView):
         registry.registerReader('oai_dc', oai_dc_reader)
         client = Client(repo.base_url, registry)
 
-
         """ Harvest each record in collection """
         records = client.listRecords(
-            metadataPrefix='oai_dc', set=collection.identifier)       
-        
+            metadataPrefix='oai_dc', set=collection.identifier)
+
         for i in records:
             """ Read Header """
             try:
                 record = Record.object.get(collection=collection)
                 record.remove_data()
-            except:                
-                record = Record()  
+            except:
+                record = Record()
 
             # record.identifier = i[0].identifier()
             # record.hdr_datestamp = i[0].datestamp()
             # record.hdr_setSpec = collection
-            # record.save()  
+            # record.save()
 
             # """ Read Metadata """
-            
+
             # dataelements = i[1].getMap()
             # for key in dataelements:
             #     element = MetadataElement()
@@ -137,17 +248,20 @@ class HarvestRecordsView(DetailView):
             #     print datastring
             #     element.element_data = datastring
             #     element.save()
-        
-        context['records'] = self.get_object().record_set.all()                
+
+        context['records'] = self.get_object().record_set.all()
         return context
 
+
 class HarvesterCollectionView(DetailView):
+
     """Show records from a given set"""
     model = Collection
     template_name = 'harvester_collection.html'
 
     def get_context_data(self, **kwargs):
-        context = super(HarvesterCollectionView, self).get_context_data(**kwargs)
+        context = super(
+            HarvesterCollectionView, self).get_context_data(**kwargs)
         context['records'] = self.get_object().record_set.all()
         return context
 
@@ -165,13 +279,13 @@ class HarvesterCollectionView(DetailView):
     #     harvest_list = []
     #     for i in request.POST:
     #         if i[:3] == 'col':
-    #             harvest_list.append(i) # -->request.POST[harvest_list[0]]
+    # harvest_list.append(i) # -->request.POST[harvest_list[0]]
 
     #     """ Iterate over list of selected collections adding to local storage each iteration """
     #     for i in harvest_list:
     #         selected_set_id = i
-    #         selected_set_name = request.POST[i] 
-    #         print selected_set_id, selected_set_name           
+    #         selected_set_name = request.POST[i]
+    #         print selected_set_id, selected_set_name
 
     #         """ Retrieve or create a collection obj """
     #         try:
@@ -187,15 +301,15 @@ class HarvesterCollectionView(DetailView):
     #         """ Harvest each record in remote collection """
     #         records = client.listRecords(
     #             metadataPrefix='oai_dc', set=selected_set_id)
-            
+
     #         for i in records:
     #             record = Record()
     #             """ Read Header """
     #             record.identifier = i[0].identifier()
     #             record.hdr_datestamp = i[0].datestamp()
     #             record.hdr_setSpec = collection
-    #             record.save()                
-                
+    #             record.save()
+
     #             record.remove_data()
 
     #             """ Read Metadata """
@@ -204,17 +318,17 @@ class HarvesterCollectionView(DetailView):
     #                 element.record = record
     #                 element.element_type = key
     #                 data = i[1].getField(key)
-    #                 # datastring = ''
-    #                 # for j in data: 
-    #                 #     # print j
-    #                 #     datastring += j + ', '
+    # datastring = ''
+    # for j in data:
+    # print j
+    # datastring += j + ', '
     #                 element.element_data = data
     #                 element.save()
-        
-    #     # return HttpResponseRedirect(reverse('home'))
+
+    # return HttpResponseRedirect(reverse('home'))
     #     response_data = []
     #     response_data.append('added collection for harvesting')
-    #     # return HttpResponse(json.dumps(response_data), content_type="application/json")
+    # return HttpResponse(json.dumps(response_data), content_type="application/json")
     #     return render(request, self.template_name, self.context)
 
 

@@ -1,11 +1,26 @@
 # oaiharvests/forms.py
-from django import forms
+from django.forms import ModelForm
 
-class BrowseRepositoryForm(forms.Form):
-    institutional_repo_name = forms.CharField()
-    institutional_base_url = forms.CharField()
-    set_identifier = forms.CharField()
+from oaipmh.client import Client
+from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 
-    def display_results(self):
-        # send email using the self.cleaned_data dictionary
-        pass
+from .models import Repository
+
+class CreateRepositoryForm(ModelForm):
+    def clean(self):
+        cleaned_data = super(CreateRepositoryForm, self).clean()
+        
+        registry = MetadataRegistry()
+        registry.registerReader('oai_dc', oai_dc_reader)
+        try:
+            client = Client(cleaned_data.get('base_url'), registry)
+            server = client.identify()
+        except:
+        	print 'BAD URL!:', cleaned_data.get('base_url')
+            # raise ValidationError('Repository base url is invalid.')
+
+        return self.cleaned_data
+
+    class Meta:
+	    model = Repository
+	    fields = ['base_url']

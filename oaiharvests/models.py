@@ -1,19 +1,23 @@
 from django.db import models
+from django.core.urlresolvers import reverse
 
 from model_utils.models import TimeStampedModel
 
 class Repository(TimeStampedModel):
 
-    """A digital library. Institutional -- e.g., ScholarSpace"""
+    """ A institutional digital library OAI service provider -- e.g., ScholarSpace """
 
     name = models.CharField(max_length=256)
     base_url = models.URLField(unique=True)
 
+    def list_communities(self):
+        return self.community_set.all()
+
     def __unicode__(self):
-        return '%s -> %s' % (self.name, self.base_url)
+        return self.name
 
     def get_absolute_url(self):
-        pass  # return reverse('collection', args=[str(self.id)])
+        return reverse('repository', args=[str(self.id)])
 
 
 class Community(TimeStampedModel):
@@ -24,14 +28,14 @@ class Community(TimeStampedModel):
     name = models.CharField(max_length=256, blank=True, default=None)
     repository = models.ForeignKey(Repository)
 
-    def collections(self):
-        return Collection.objects.filter(community=self)
+    def list_collections(self):
+        return self.collection_set.all()
 
     def __unicode__(self):
-        return '%s -> %s' % (self.identifier, self.name)
+        return self.name
 
     def get_absolute_url(self):
-        pass  # return reverse('collection', args=[str(self.id)])
+        return reverse('community', args=[str(self.identifier)])
 
 
 class Collection(TimeStampedModel):
@@ -42,11 +46,17 @@ class Collection(TimeStampedModel):
     name = models.CharField(max_length=256)
     community = models.ForeignKey(Community, null=True, blank=True)
 
+    def count_records(self):
+        return self.record_set.all().count()
+
+    def list_records(self):
+        return self.record_set.all()
+
     def __unicode__(self):
-        return '%s' % self.name
+        return self.name
 
     def get_absolute_url(self):
-        pass  # return reverse('collection', args=[str(self.id)])
+       return reverse('collection', args=[str(self.identifier)])
 
 
 class Record(TimeStampedModel):

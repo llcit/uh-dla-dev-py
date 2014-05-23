@@ -1,0 +1,27 @@
+<!-- community_detail.html -->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block page_header %} {{ object.repository }} : {{ object.name }} {% endblock page_header %}
+
+{% block content %}
+
+	{% if messages %}
+	    {% for message in messages %}
+	    <h5{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h5>
+	    {% endfor %}
+	{% endif %}
+
+	<h2> Collections </h2>
+	{% for i in collections %}		
+		<h3>
+			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
+			<small> {{ i.identifier }} </small>
+		</h3>
+		<h5> OAI Identifier: {{ i.identifier }}</h5>
+		<h5> Community: {{ i.community }}</h5>
+		<h5> Number of records harvested: {{ i.count_records }}</h5>
+		<h5> Created on: {{ i.created }}</h5>
+		<h5> Modified on: {{ i.modified }}</h5>
+	{% endfor %}
+{% endblock content %}

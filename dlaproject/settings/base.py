@@ -48,7 +48,7 @@ WSGI_APPLICATION = 'dlaproject.wsgi.application'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Pacific/Honolulu'
 
 USE_I18N = True
 

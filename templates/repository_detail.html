@@ -1,0 +1,30 @@
+<!-- repository_detail.html -->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block page_header %}  {% endblock page_header %}
+
+{% block content %}
+
+	{% if messages %}
+	    {% for message in messages %}
+	    <h5{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h5>
+	    {% endfor %}
+	{% endif %}
+
+	<h2> {{ object.name }} <small>{{ object.base_url }}</small></h2>
+
+	{% for i in collections %}
+		{% ifchanged i.community %}
+		<h3>
+			<a href="{{ i.community.get_absolute_url }}">{{ i.community.name }}</a>
+			<small> {{ i.community.identifier }} </small>
+		</h3>
+		{% endifchanged %}
+		<h5>
+			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
+			<small> {{ i.identifier }} </small>
+		</h5>
+	{% endfor %}
+
+{% endblock content %}
