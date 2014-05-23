@@ -1,0 +1,39 @@
+<!-- community_list.html -->
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block page_header %}  {% endblock page_header %}
+
+{% block content %}
+
+	{% if messages %}
+	    {% for message in messages %}
+	    <h5{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h5>
+	    {% endfor %}
+	{% endif %}
+
+	<h2>Community Repositories Currently Registered On This Site</h2>
+	
+	{% for i in current_communities %}
+		<div>
+			<small>
+				<a href="{% url 'community' i.identifier %}">{{ i.name }}</a> {{ i.identifier }}
+			</small>
+		</div>
+	{% endfor %}
+
+
+
+	<h2>Community Repositories Available in {{ object }}</h2>
+	{% for i in oai_communities %}
+		<div>
+			<small>
+				{% if not i.registered %}
+					<a href="{% url 'community_add' i.setSpec %}">add</a>
+				{% endif %}
+				{{ i.setName }} {{ i.setSpec }}
+			</small>
+		</div>
+	{% endfor %}
+
+{% endblock content %}

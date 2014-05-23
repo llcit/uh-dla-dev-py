@@ -27,7 +27,7 @@ urlpatterns = patterns('',
                        # Institutional Repositories #
                        url(r'^oaiharvester/$', RepositoryListView.as_view(),
                            name='repository_list'),
-                       
+
                        url(r'^oaiharvester/repository/add/$',
                            RepositoryCreateView.as_view(
                            ), name='repository_add'),
@@ -40,11 +40,13 @@ urlpatterns = patterns('',
                        url(r'^oaiharvester/repository/(?P<pk>\w+)$',
                            RepositoryView.as_view(), name='repository'),
 
+                       url(r'^oaiharvester/communities/(?P<pk>\w+)$',
+                           CommunityListView.as_view(), name='community_list'),
                        url(r'^oaiharvester/community/(?P<pk>\w+)$',
                            CommunityView.as_view(), name='community'),
-                       url(r'^oaiharvester/community/add$',
+                       url(r'^oaiharvester/community/add/(?P<pk>\w+)$',
                            CommunityCreateView.as_view(
-                           ), name='community_create'),
+                           ), name='community_add'),
                        url(r'^oaiharvester/community/edit/(?P<pk>\w+)$',
                            CommunityUpdateView.as_view(
                            ), name='community_edit'),

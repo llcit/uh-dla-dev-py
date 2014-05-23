@@ -10,13 +10,13 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from django.contrib import messages
 import json
-from itertools import tee
 
 from oaipmh.client import Client
 from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 
 from .models import Repository, Community, Collection, MetadataElement, Record
-from .forms import CreateRepositoryForm
+from .forms import CreateRepositoryForm, CreateCommunityForm
+
 
 class RepositoryListView(ListView):
     model = Repository
@@ -39,28 +39,11 @@ class RepositoryCreateView(CreateView):
     template_name = 'repository_form.html'
     form_class = CreateRepositoryForm
 
-    def verify_remote_repository(self, **kwargs):
-        registry = MetadataRegistry()
-        registry.registerReader('oai_dc', oai_dc_reader)
-        try:
-            client = Client(kwargs.pop('base_url'), registry)
-            server = client.identify()
-            return server
-        except:
-            return None
-
-    def form_valid(self, form):
-        # server = self.verify_remote_repository(base_url=form.cleaned_data['base_url'])
-        # if server:
-        #     return super(RepositoryCreateView, self).form_valid(form)
-        return super(RepositoryCreateView, self).form_valid(form)
-
-
-
     def get_context_data(self, **kwargs):
         context = super(RepositoryCreateView, self).get_context_data(**kwargs)
         context['view_type'] = 'add'
         return context
+
 
 class RepositoryUpdateView(UpdateView):
     model = Repository
@@ -68,14 +51,53 @@ class RepositoryUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(RepositoryUpdateView, self).get_context_data(**kwargs)
-        context['view_type'] = 'edit'
+        context['view_type'] = 'update'
         return context
+
 
 class RepositoryDeleteView(DeleteView):
     model = Repository
-    success_url = reverse_lazy('repository_list')
     template_name = 'repository_confirm_delete.html'
+    success_url = reverse_lazy('repository_list')
 
+
+class CommunityListView(DetailView):
+    model = Repository
+    template_name = 'community_list.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(CommunityListView, self).get_context_data(**kwargs)
+        current_communities = Community.objects.all()
+
+        repository = self.get_object()
+
+        """ Retrieve the list of community sets from the institutional repository """
+        try:
+            registry = MetadataRegistry()
+            registry.registerReader('oai_dc', oai_dc_reader)
+            client = Client(repository.base_url, registry)
+            sets = client.listSets()
+        except:
+            messages.add_message(
+                self.request, messages.ERROR, 'Error accessing the remote repository.')
+            return context
+
+        """ Filter records to build list of community sets """
+        oai_communities = []
+        for i in sets:
+            set_id = i[0]
+            set_name = i[1]
+            if set_id[:3] == 'com':
+                set_data = dict()
+                set_data['setSpec'] = set_id
+                set_data['setName'] = set_name
+                set_data['registered'] = current_communities.filter(identifier=set_id).count()
+                oai_communities.append(set_data)
+            
+        """ Build collection object (id and human readable name) """
+        context['current_communities'] = current_communities
+        context['oai_communities'] = oai_communities
+        return context
 
 class CommunityView(DetailView):
     model = Community
@@ -86,9 +108,22 @@ class CommunityView(DetailView):
         context['collections'] = self.get_object().list_collections()
         return context
 
-
 class CommunityCreateView(CreateView):
     model = Community
+    template_name = 'community_form.html'
+    form_class = CreateCommunityForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CommunityCreateView, self).get_context_data(*args, **kwargs)
+        return context
+
+class CommunityQuickCreateView(TemplateView):
+    template_name = 'community_detail.html'
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(CommunityQuickCreateView, self).get_context_data(*args, **kwargs)
+        
+        return context
 
 
 class CommunityUpdateView(UpdateView):

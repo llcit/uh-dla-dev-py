@@ -2,8 +2,6 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
-{% block page_header %}  {% endblock page_header %}
-
 {% block content %}
 
 	{% if messages %}
@@ -12,7 +10,11 @@
 	    {% endfor %}
 	{% endif %}
 
-	<h2> {{ object.name }} <small>{{ object.base_url }}</small></h2>
+	<h2> {{ object.name }}
+		<small><a href="{% url 'community_add' object.id %}">add a set</a></small>
+		<small><a href="{% url 'community_list' object.id %}">list available sets</a></small>
+	</h2>
+	<h3><small>{{ object.base_url }}</small></h3>
 
 	{% for i in collections %}
 		{% ifchanged i.community %}
