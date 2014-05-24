@@ -12,21 +12,20 @@
 
 	<h2> {{ object.name }}
 		<small><a href="{% url 'community_add' object.id %}">add a set</a></small>
-		<small><a href="{% url 'community_list' object.id %}">list available sets</a></small>
 	</h2>
 	<h3><small>{{ object.base_url }}</small></h3>
 
-	{% for i in collections %}
-		{% ifchanged i.community %}
+	{% for i in communities %}		
 		<h3>
-			<a href="{{ i.community.get_absolute_url }}">{{ i.community.name }}</a>
-			<small> {{ i.community.identifier }} </small>
-		</h3>
-		{% endifchanged %}
-		<h5>
 			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
 			<small> {{ i.identifier }} </small>
-		</h5>
+		</h3>
+		{% for j in i.list_collections %}
+			<h5>
+				<a href="{{ j.get_absolute_url }}">{{ j.name }}</a>
+				<small> {{ j.identifier }} </small>
+			</h5>
+		{% endfor %}
 	{% endfor %}
 
 {% endblock content %}

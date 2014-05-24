@@ -41,7 +41,8 @@ urlpatterns = patterns('',
                            RepositoryView.as_view(), name='repository'),
 
                        url(r'^oaiharvester/communities/(?P<pk>\w+)$',
-                           CommunityListView.as_view(), name='community_list'),
+                           RepositoryCommunityListView.as_view(
+                           ), name='community_list'),
                        url(r'^oaiharvester/community/(?P<pk>\w+)$',
                            CommunityView.as_view(), name='community'),
                        url(r'^oaiharvester/community/add/(?P<pk>\w+)$',

@@ -29,8 +29,8 @@ class RepositoryView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RepositoryView, self).get_context_data(**kwargs)
-        context['collections'] = Collection.objects.filter(
-            community__repository=self.get_object()).order_by('community')
+        obj = self.get_object()
+        context['communities'] = obj.list_communities()
         return context
 
 
@@ -61,12 +61,12 @@ class RepositoryDeleteView(DeleteView):
     success_url = reverse_lazy('repository_list')
 
 
-class CommunityListView(DetailView):
+class RepositoryCommunityListView(DetailView):
     model = Repository
-    template_name = 'community_list.html'
+    template_name = 'community_list_form.html'
     
     def get_context_data(self, **kwargs):
-        context = super(CommunityListView, self).get_context_data(**kwargs)
+        context = super(RepositoryCommunityListView, self).get_context_data(**kwargs)
         current_communities = Community.objects.all()
 
         repository = self.get_object()
@@ -87,6 +87,7 @@ class CommunityListView(DetailView):
         for i in sets:
             set_id = i[0]
             set_name = i[1]
+            """ Build collection object (id and human readable name) """
             if set_id[:3] == 'com':
                 set_data = dict()
                 set_data['setSpec'] = set_id
@@ -94,10 +95,12 @@ class CommunityListView(DetailView):
                 set_data['registered'] = current_communities.filter(identifier=set_id).count()
                 oai_communities.append(set_data)
             
-        """ Build collection object (id and human readable name) """
+        
         context['current_communities'] = current_communities
         context['oai_communities'] = oai_communities
         return context
+
+
 
 class CommunityView(DetailView):
     model = Community
@@ -112,17 +115,20 @@ class CommunityCreateView(CreateView):
     model = Community
     template_name = 'community_form.html'
     form_class = CreateCommunityForm
+    repo = None
+
+    def get(self, request, pk):
+        self.repo = Repository.objects.get(id=pk)
+        return super(CommunityCreateView, self).get(request, pk)
+
+    def get_form_kwargs(self):
+        kwargs = super(CommunityCreateView, self).get_form_kwargs()
+        kwargs['repository'] = self.repo
+        return kwargs
 
     def get_context_data(self, *args, **kwargs):
         context = super(CommunityCreateView, self).get_context_data(*args, **kwargs)
-        return context
-
-class CommunityQuickCreateView(TemplateView):
-    template_name = 'community_detail.html'
-    
-    def get_context_data(self, *args, **kwargs):
-        context = super(CommunityQuickCreateView, self).get_context_data(*args, **kwargs)
-        
+        print self.repo
         return context
 
 

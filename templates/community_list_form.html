@@ -1,4 +1,4 @@
-<!-- community_list.html -->
+<!-- community_list_form.html -->
 {% extends 'base.html' %}
 {% load staticfiles %}
 
@@ -25,15 +25,19 @@
 
 
 	<h2>Community Repositories Available in {{ object }}</h2>
-	{% for i in oai_communities %}
-		<div>
-			<small>
-				{% if not i.registered %}
-					<a href="{% url 'community_add' i.setSpec %}">add</a>
-				{% endif %}
-				{{ i.setName }} {{ i.setSpec }}
-			</small>
-		</div>
-	{% endfor %}
+	<form action="" method="post">{% csrf_token %} 
+		<input type="hidden" name="repository" value="{{ object.id }}">
+		{% for i in oai_communities %}
+			<div>
+				<small>
+					{% if not i.registered %}
+						{% comment %}<a href="{% url 'community_add' i.setSpec %}">add</a> {% endcomment %}
+						<input type="submit" id="id_{{ i.setSpec }}" name="{{ i.setSpec }}" value="{{ i.setName }}">
+					{% endif %}
+					{{ i.setName }} {{ i.setSpec }}
+				</small>
+			</div>
+		{% endfor %}
+	</form>
 
 {% endblock content %}
