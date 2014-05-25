@@ -39,42 +39,48 @@ class CreateRepositoryForm(ModelForm):
 class CreateCommunityForm(ModelForm):
     # modify identifier field to show list of repository communities
 
+    community_list = []
     def clean(self):
-        print 'clean->'
         cleaned_data = super(CreateCommunityForm, self).clean()
-        
+        print 'clean->'
         return cleaned_data
 
-    def __init__(self, repository, *args, **kwargs):
-        # repository = kwargs.pop('repository')
-        super(CreateCommunityForm, self).__init__(repository, *args, **kwargs)
-        print 'form init->', repository
-        
-        # repository = kwargs['initial']['repository']    
+    def build_oai_set(self, repository):
+        print 'OAI request -> ', self.community_list
+        try:
+            registry = MetadataRegistry()
+            registry.registerReader('oai_dc', oai_dc_reader)
+            client = Client(repository.base_url, registry)
+            sets = client.listSets()
+        except:
+            raise ValidationError('Repository cannot be accessed.')
+            return None
 
-        # try:
-        #     registry = MetadataRegistry()
-        #     registry.registerReader('oai_dc', oai_dc_reader)
-        #     client = Client(repository.base_url, registry)
-        #     sets = client.listSets()
-        # except:
-        #     raise ValidationError('Repository cannot be accessed.')
-        #     return
+        """ Filter records to build list of community sets """
+        oai_communities = []
+        for i in sets:
+            set_id = i[0]
+            set_name = i[1]
+            """ Build collection tuples (id, human readable name) for use in dropdown """
+            if set_id[:3] == 'com':
+                set_data = []
+                set_data.append(set_id)
+                set_data.append(set_name)
+                oai_communities.append(set_data)
+            print i
+        return oai_communities
 
-        # """ Filter records to build list of community sets """
-        # oai_communities = []
-        # for i in sets:
-        #     set_id = i[0]
-        #     set_name = i[1]
-        #     """ Build collection tuples (id, human readable name) for use in dropdown """
-        #     if set_id[:3] == 'com':
-        #         set_data = []
-        #         set_data.append(set_id)
-        #         set_data.append(set_name)
-        #         oai_communities.append(set_data)
-        
-        # self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=list(oai_communities)))
-        # self.fields['repository'].empty_label = None
+    def __init__(self, *args, **kwargs):
+        repo = kwargs.pop('repo')
+        if not self.community_list:
+            self.community_list = self.build_oai_set(repo)
+
+        super(CreateCommunityForm, self).__init__(*args, **kwargs)
+        print 'com list->', self.community_list #self.fields['identifier'].widget.choices
+
+        # repository = kwargs['initial']['repository']        
+        self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=list(self.community_list)))
+        self.fields['repository'].empty_label = None
         
 
     class Meta:

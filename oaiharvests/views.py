@@ -121,10 +121,11 @@ class CommunityCreateView(DetailView):
     #     return super(CommunityCreateView, self).get(*args, **kwargs)
 
     def post(self, request, **kwargs):
-        print 'Post->', request.POST
-        form = CreateCommunityForm(request.POST)
+        print 'post->'
+        form = CreateCommunityForm(request.POST, repo=self.get_object())
 
         if form.is_valid():
+            # form.save()
             return HttpResponseRedirect(reverse('repository_list'))
 
         return render_to_response("community_form.html", {'form': form})
@@ -132,8 +133,8 @@ class CommunityCreateView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CommunityCreateView, self).get_context_data(**kwargs)
-        print 'context->'
-        form = CreateCommunityForm(repository=self.get_object())
+        form = CreateCommunityForm(repo=self.get_object())
+        print 'context form->'
         context['form'] = form
         return context
 
