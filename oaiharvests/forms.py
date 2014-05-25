@@ -18,6 +18,7 @@ class CreateRepositoryForm(ModelForm):
             registry.registerReader('oai_dc', oai_dc_reader)
             client = Client(cleaned_data.get('base_url'), registry)
             server = client.identify()
+            # set the repository name -- will apply to model instance when saved.
             cleaned_data['name'] = server.repositoryName()
         except:
             raise ValidationError('Repository base url is invalid.')
@@ -36,33 +37,44 @@ class CreateRepositoryForm(ModelForm):
 
 
 class CreateCommunityForm(ModelForm):
+    # modify identifier field to show list of repository communities
+
+    def clean(self):
+        print 'clean->'
+        cleaned_data = super(CreateCommunityForm, self).clean()
+        
+        return cleaned_data
 
     def __init__(self, repository, *args, **kwargs):
-        super(CreateCommunityForm, self).__init__(*args, **kwargs)
+        # repository = kwargs.pop('repository')
+        super(CreateCommunityForm, self).__init__(repository, *args, **kwargs)
+        print 'form init->', repository
         
-        try:
-            registry = MetadataRegistry()
-            registry.registerReader('oai_dc', oai_dc_reader)
-            client = Client(repository.base_url, registry)
-            sets = client.listSets()
-        except:
-            # self[errors] = 'Error accessing the remote repository.'
-            return
+        # repository = kwargs['initial']['repository']    
 
-        """ Filter records to build list of community sets """
-        oai_communities = []
-        for i in sets:
-            set_id = i[0]
-            set_name = i[1]
-            """ Build collection object (id and human readable name) """
-            if set_id[:3] == 'com':
-                set_data = []
-                set_data.append(set_id)
-                set_data.append(set_name)
-                oai_communities.append(set_data)
+        # try:
+        #     registry = MetadataRegistry()
+        #     registry.registerReader('oai_dc', oai_dc_reader)
+        #     client = Client(repository.base_url, registry)
+        #     sets = client.listSets()
+        # except:
+        #     raise ValidationError('Repository cannot be accessed.')
+        #     return
+
+        # """ Filter records to build list of community sets """
+        # oai_communities = []
+        # for i in sets:
+        #     set_id = i[0]
+        #     set_name = i[1]
+        #     """ Build collection tuples (id, human readable name) for use in dropdown """
+        #     if set_id[:3] == 'com':
+        #         set_data = []
+        #         set_data.append(set_id)
+        #         set_data.append(set_name)
+        #         oai_communities.append(set_data)
         
-        self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=list(oai_communities)))
-        self.fields['repository'].initial = repository       
+        # self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=list(oai_communities)))
+        # self.fields['repository'].empty_label = None
         
 
     class Meta:

@@ -6,7 +6,7 @@ from django import forms
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 
 from django.contrib import messages
 import json
@@ -111,26 +111,31 @@ class CommunityView(DetailView):
         context['collections'] = self.get_object().list_collections()
         return context
 
-class CommunityCreateView(CreateView):
-    model = Community
+class CommunityCreateView(DetailView):
+    model = Repository
     template_name = 'community_form.html'
-    form_class = CreateCommunityForm
-    repo = None
 
-    def get(self, request, pk):
-        self.repo = Repository.objects.get(id=pk)
-        return super(CommunityCreateView, self).get(request, pk)
+    # def get(self, *args, **kwargs):
+    #     repo = Repository.objects.get(pk=pk)
+        
+    #     return super(CommunityCreateView, self).get(*args, **kwargs)
 
-    def get_form_kwargs(self):
-        kwargs = super(CommunityCreateView, self).get_form_kwargs()
-        kwargs['repository'] = self.repo
-        return kwargs
+    def post(self, request, **kwargs):
+        print 'Post->', request.POST
+        form = CreateCommunityForm(request.POST)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(CommunityCreateView, self).get_context_data(*args, **kwargs)
-        print self.repo
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('repository_list'))
+
+        return render_to_response("community_form.html", {'form': form})
+        
+
+    def get_context_data(self, **kwargs):
+        context = super(CommunityCreateView, self).get_context_data(**kwargs)
+        print 'context->'
+        form = CreateCommunityForm(repository=self.get_object())
+        context['form'] = form
         return context
-
 
 class CommunityUpdateView(UpdateView):
     model = Community
