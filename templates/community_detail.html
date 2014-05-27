@@ -12,7 +12,9 @@
 	    {% endfor %}
 	{% endif %}
 
-	<h2> Collections </h2>
+	<h2> {{ object.name }} 
+		<small><a href="{% url 'collection_add' object.identifier %}">add a collection</a></small>
+	</h2>
 	{% for i in collections %}		
 		<h3>
 			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse, reverse_lazy
 from django import forms
@@ -15,7 +15,7 @@ from oaipmh.client import Client
 from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 
 from .models import Repository, Community, Collection, MetadataElement, Record
-from .forms import CreateRepositoryForm, CreateCommunityForm
+from .forms import CreateRepositoryForm, CreateCommunityForm, CreateCollectionForm
 
 
 class RepositoryListView(ListView):
@@ -68,36 +68,7 @@ class RepositoryCommunityListView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RepositoryCommunityListView, self).get_context_data(**kwargs)
         current_communities = Community.objects.all()
-
-        repository = self.get_object()
-
-        """ Retrieve the list of community sets from the institutional repository """
-        try:
-            registry = MetadataRegistry()
-            registry.registerReader('oai_dc', oai_dc_reader)
-            client = Client(repository.base_url, registry)
-            sets = client.listSets()
-        except:
-            messages.add_message(
-                self.request, messages.ERROR, 'Error accessing the remote repository.')
-            return context
-
-        """ Filter records to build list of community sets """
-        oai_communities = []
-        for i in sets:
-            set_id = i[0]
-            set_name = i[1]
-            """ Build collection object (id and human readable name) """
-            if set_id[:3] == 'com':
-                set_data = dict()
-                set_data['setSpec'] = set_id
-                set_data['setName'] = set_name
-                set_data['registered'] = current_communities.filter(identifier=set_id).count()
-                oai_communities.append(set_data)
-            
-        
         context['current_communities'] = current_communities
-        context['oai_communities'] = oai_communities
         return context
 
 
@@ -115,20 +86,15 @@ class CommunityCreateView(DetailView):
     model = Repository
     template_name = 'community_form.html'
 
-    # def get(self, *args, **kwargs):
-    #     repo = Repository.objects.get(pk=pk)
-        
-    #     return super(CommunityCreateView, self).get(*args, **kwargs)
-
     def post(self, request, **kwargs):
         print 'post->'
         form = CreateCommunityForm(request.POST, repo=self.get_object())
 
         if form.is_valid():
-            # form.save()
-            return HttpResponseRedirect(reverse('repository_list'))
+            form.save()
+            return HttpResponseRedirect(reverse('repository', args=[str(self.get_object().id)]))
 
-        return render_to_response("community_form.html", {'form': form})
+        return render_to_response('community_form.html', {'form': form})
         
 
     def get_context_data(self, **kwargs):
@@ -156,9 +122,27 @@ class CollectionView(DetailView):
         return context
 
 
-class CollectionCreateView(CreateView):
-    model = Collection
+class CollectionCreateView(DetailView):
+    model = Community
+    template_name = 'collection_form.html'
 
+    def post(self, request, **kwargs):
+        print 'post->'
+        form = CreateCollectionForm(request.POST, community=self.get_object())
+
+        if form.is_valid():
+            # form.save()
+            return HttpResponseRedirect(reverse('community', args=[str(self.get_object().id)]))
+
+        return render_to_response('collection_form.html', {'form': form})
+        
+
+    def get_context_data(self, **kwargs):
+        context = super(CollectionCreateView, self).get_context_data(**kwargs)
+        form = CreateCollectionForm(community=self.get_object())
+        print 'context form->'
+        context['form'] = form
+        return context
 
 class CollectionUpdateView(UpdateView):
     model = Collection

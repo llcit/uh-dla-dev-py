@@ -57,9 +57,9 @@ urlpatterns = patterns('',
 
                        url(r'^oaiharvester/collection/(?P<pk>\w+)$',
                            CollectionView.as_view(), name='collection'),
-                       url(r'^oaiharvester/collection/add$',
+                       url(r'^oaiharvester/collection/add/(?P<pk>\w+)$',
                            CollectionCreateView.as_view(
-                           ), name='collection_create'),
+                           ), name='collection_add'),
                        url(r'^oaiharvester/collection/edit/(?P<pk>\w+)$',
                            CollectionUpdateView.as_view(
                            ), name='collection_edit'),
