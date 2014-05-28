@@ -2,6 +2,8 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 
+{% block page_title %}Repositories{% endblock page_title %}
+
 {% block content %}
 
 	{% if messages %}
@@ -19,9 +21,15 @@
 		<h3>
 			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
 			<small> {{ i.identifier }} </small>
+			<small>
+				<small><a href="{% url 'community_edit' i.identifier %}">edit</a></small>
+				<small><a href="{% url 'community_delete' i.identifier %}">remove</a></small>
+			</small>
 		</h3>
 		{% for j in i.list_collections %}
 			<h5>
+				<small><a href="{% url 'collection_edit' j.identifier %}">edit</a></small>
+				<small><a href="{% url 'collection_delete' j.identifier %}">remove</a></small>
 				<a href="{{ j.get_absolute_url }}">{{ j.name }}</a>
 				<small> {{ j.identifier }} </small>
 			</h5>

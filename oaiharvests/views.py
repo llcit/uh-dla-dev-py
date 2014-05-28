@@ -16,7 +16,7 @@ from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 
 from .models import Repository, Community, Collection, MetadataElement, Record
 from .forms import CreateRepositoryForm, CreateCommunityForm, CreateCollectionForm
-
+from .utils import OAIUtils
 
 class RepositoryListView(ListView):
     model = Repository
@@ -57,19 +57,8 @@ class RepositoryUpdateView(UpdateView):
 
 class RepositoryDeleteView(DeleteView):
     model = Repository
-    template_name = 'repository_confirm_delete.html'
+    template_name = 'confirm_delete.html'
     success_url = reverse_lazy('repository_list')
-
-
-class RepositoryCommunityListView(DetailView):
-    model = Repository
-    template_name = 'community_list_form.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super(RepositoryCommunityListView, self).get_context_data(**kwargs)
-        current_communities = Community.objects.all()
-        context['current_communities'] = current_communities
-        return context
 
 
 
@@ -84,32 +73,53 @@ class CommunityView(DetailView):
 
 class CommunityCreateView(DetailView):
     model = Repository
-    template_name = 'community_form.html'
+    template_name = 'community_add_form.html'
+    oai = OAIUtils()
+
 
     def post(self, request, **kwargs):
         print 'post->'
-        form = CreateCommunityForm(request.POST, repo=self.get_object())
+        form = CreateCommunityForm(request.POST, repo=self.get_object(), community_list=self.oai.communities)
 
         if form.is_valid():
+            choices = form.fields['identifier'].widget.choices
+            for i in choices:
+                if i[0] == form.instance.identifier:
+                    form.instance.name = i[1]
+                    break
+
             form.save()
             return HttpResponseRedirect(reverse('repository', args=[str(self.get_object().id)]))
 
-        return render_to_response('community_form.html', {'form': form})
+        return render_to_response('community_add_form.html', {'form': form})
         
 
     def get_context_data(self, **kwargs):
         context = super(CommunityCreateView, self).get_context_data(**kwargs)
-        form = CreateCommunityForm(repo=self.get_object())
-        print 'context form->'
+        self.oai.list_oai_community_sets(self.get_object())
+        
+        form = CreateCommunityForm(repo=self.get_object(), community_list=self.oai.communities)
         context['form'] = form
         return context
 
 class CommunityUpdateView(UpdateView):
     model = Community
+    template_name = 'collection_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(CommunityUpdateView, self).get_context_data(**kwargs)        
+        context['view_type'] = 'update community collection info'
+        return context
 
 class CommunityDeleteView(DeleteView):
     model = Community
+    template_name = 'confirm_delete.html'
+    success_url = reverse_lazy('repository_list')
+
+    def get_context_data(self, **kwargs):
+        context = super(CommunityDeleteView, self).get_context_data(**kwargs)        
+        context['view_type'] = 'delete community collection'
+        return context
 
 
 class CollectionView(DetailView):
@@ -125,242 +135,100 @@ class CollectionView(DetailView):
 class CollectionCreateView(DetailView):
     model = Community
     template_name = 'collection_form.html'
-
+    oai = OAIUtils()
+    
     def post(self, request, **kwargs):
-        print 'post->'
-        form = CreateCollectionForm(request.POST, community=self.get_object())
+        form = CreateCollectionForm(request.POST, community=self.get_object(), collections_list=self.oai.collections)
 
-        if form.is_valid():
+        if form.is_valid():            
+            choices = form.fields['identifier'].widget.choices
+            for i in choices:
+                if i[0] == form.instance.identifier:
+                    form.instance.name = i[1]
+                    break
             form.save()
             return HttpResponseRedirect(reverse('community', args=[str(self.get_object().identifier)]))
 
-        return render_to_response('collection_form.html', {'form': form})
+        return render_to_response('collection_add_form.html', {'form': form})
         
 
     def get_context_data(self, **kwargs):
-        context = super(CollectionCreateView, self).get_context_data(**kwargs)
-        form = CreateCollectionForm(community=self.get_object())
-        print 'context form->'
+        context = super(CollectionCreateView, self).get_context_data(**kwargs)        
+        self.oai.list_oai_collections(self.get_object())
+        form = CreateCollectionForm(community=self.get_object(), collections_list=self.oai.collections)
         context['form'] = form
+        context['view_type'] = 'add new collection'
         return context
 
 class CollectionUpdateView(UpdateView):
     model = Collection
+    template_name = 'collection_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(CollectionUpdateView, self).get_context_data(**kwargs)        
+        context['view_type'] = 'update collection info'
+        return context
 
 class CollectionDeleteView(DeleteView):
     model = Collection
-
-
-class HarvesterCommunityListView(ListView):
-    model = Community
-    template_name = 'harvester_list_repos.html'
+    template_name = 'confirm_delete.html'
+    success_url = reverse_lazy('repository_list')
 
     def get_context_data(self, **kwargs):
-        context = super(
-            HarvesterCommunityListView, self).get_context_data(**kwargs)
-        # context['communities'] = selt.get_object().set_community.all()
+        context = super(CollectionDeleteView, self).get_context_data(**kwargs)        
+        context['view_type'] = 'delete collection info'
         return context
 
 
-class HarvesterCommunityView(DetailView):
-    model = Community
-    template_name = 'harvester_community_repo.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(
-            HarvesterCommunityView, self).get_context_data(**kwargs)
-        context['collections'] = self.get_object().collection_set.all()
-        return context
-
-
-class HarvesterRegistrationView(DetailView):
-
-    """
-    Creates or updates Collection objects from an institutional repository community for future 
-    harvesting. The source of the collections is a community set within the institutional repo.
-
-    Expected model instance is a pk representing a community collection identifier.
-
-    Expected outcome are new Collection instances stored in local db.
-    """
-    model = Community
-    template_name = 'harvester_collector.html'
-
-    def get_context_data(self, **kwargs):
-        self.context = super(
-            HarvesterRegistrationView, self).get_context_data(**kwargs)
-        repo = self.get_object()
-
-        registry = MetadataRegistry()
-        registry.registerReader('oai_dc', oai_dc_reader)
-        client = Client(repo.repository.base_url, registry)
-
-        """ retrieve the header data for each record in the current community repo """
-        try:
-            records = client.listIdentifiers(
-                metadataPrefix='oai_dc', set=repo.identifier)
-        except:
-            messages.add_message(
-                self.request, messages.ERROR, 'Repository or Collection with id ' + repo_id + ' was not found.')
-            return context
-
-        """ Filter records to build list of collections in the SET """
-        remote_collections = dict()
-        for i in records:
-            for j in i.setSpec():
-                if j[:3] == 'col':
-                    remote_collections[j] = ''
-
-        """ Build collection object (id and human readable name) """
-        sets = client.listSets()
-        for i in sets:
-            if i[0] in remote_collections:
-                """ Retrieve or create a collection obj """
-                try:
-                    collection = Collection.objects.get(pk=i[0])
-                except:
-                    collection = Collection()
-                    collection.identifier = i[0]
-                    collection.name = i[1]
-                    collection.community = repo
-
-                collection.save()
-
-        self.context['registered_collections'] = repo.collections()
-        return self.context
-
-
-class HarvestRecordsView(DetailView):
-
-    """ Harvest records in a single collection """
+class CollectionHarvestView(DetailView):
     model = Collection
-    template_name = 'harvester_collection.html'
-
+    template_name = 'collection_detail.html'
+    
+    
     def get_context_data(self, **kwargs):
         context = super(
-            HarvestRecordsView, self).get_context_data(**kwargs)
+            CollectionHarvestView, self).get_context_data(**kwargs)
+        oai = OAIUtils()
         collection = self.get_object()
-        repo = collection.community.repository
-
-        """ Create OAI client from repo object """
-        registry = MetadataRegistry()
-        registry.registerReader('oai_dc', oai_dc_reader)
-        client = Client(repo.base_url, registry)
-
-        """ Harvest each record in collection """
-        records = client.listRecords(
-            metadataPrefix='oai_dc', set=collection.identifier)
+        repository = collection.community.repository
+        records = oai.harvest_oai_collection_records(collection)
 
         for i in records:
             """ Read Header """
             try:
-                record = Record.object.get(collection=collection)
+                record = Record.objects.get(identifier=i[0].identifier())
+                print 'deleting-> ', record
                 record.remove_data()
             except:
                 record = Record()
 
-            # record.identifier = i[0].identifier()
-            # record.hdr_datestamp = i[0].datestamp()
-            # record.hdr_setSpec = collection
-            # record.save()
+                record.identifier = i[0].identifier()
+                record.hdr_datestamp = i[0].datestamp()
+                record.hdr_setSpec = collection
+            
+            record.save()
 
-            # """ Read Metadata """
+            """ Read Metadata """
 
-            # dataelements = i[1].getMap()
-            # for key in dataelements:
-            #     element = MetadataElement()
-            #     element.record = record
-            #     element.element_type = key
-            #     data = dataelements[key]
-            #     datastring = ''
-            #     for i in data:
-            #         datastring += i
-            #     print datastring
-            #     element.element_data = datastring
-            #     element.save()
+            dataelements = i[1].getMap()
+            for key in dataelements:
+                element = MetadataElement()
+                element.record = record
+                element.element_type = key
+                data = dataelements[key]
+                datastring = ''
+                for i in data:
+                    datastring += i
+                # print datastring
+                element.element_data = datastring
+                element.save()
 
         context['records'] = self.get_object().record_set.all()
-        return context
-
-
-class HarvesterCollectionView(DetailView):
-
-    """Show records from a given set"""
-    model = Collection
-    template_name = 'harvester_collection.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(
-            HarvesterCollectionView, self).get_context_data(**kwargs)
-        context['records'] = self.get_object().record_set.all()
+        context['num_records'] = self.get_object().count_records()
         return context
 
 
 
-    # def post(self, request, *args, **kwargs):
-    #     """ Create OAI client from repo object """
-    #     repo = self.get_object().community.repository
-
-    #     registry = MetadataRegistry()
-    #     registry.registerReader('oai_dc', oai_dc_reader)
-    #     client = Client(repo.repository.base_url, registry)
-
-    #     """ Filter POST data to build list of selected collections to harvest """
-    #     harvest_list = []
-    #     for i in request.POST:
-    #         if i[:3] == 'col':
-    # harvest_list.append(i) # -->request.POST[harvest_list[0]]
-
-    #     """ Iterate over list of selected collections adding to local storage each iteration """
-    #     for i in harvest_list:
-    #         selected_set_id = i
-    #         selected_set_name = request.POST[i]
-    #         print selected_set_id, selected_set_name
-
-    #         """ Retrieve or create a collection obj """
-    #         try:
-    #             collection = Collection.objects.get(pk=selected_set_id)
-    #         except:
-    #             collection = Collection()
-    #             collection.identifier = selected_set_id
-    #             collection.name = selected_set_name
-    #             collection.community = repo
-
-    #         collection.save()
-
-    #         """ Harvest each record in remote collection """
-    #         records = client.listRecords(
-    #             metadataPrefix='oai_dc', set=selected_set_id)
-
-    #         for i in records:
-    #             record = Record()
-    #             """ Read Header """
-    #             record.identifier = i[0].identifier()
-    #             record.hdr_datestamp = i[0].datestamp()
-    #             record.hdr_setSpec = collection
-    #             record.save()
-
-    #             record.remove_data()
-
-    #             """ Read Metadata """
-    #             for key in i[1].getMap():
-    #                 element = MetadataElement()
-    #                 element.record = record
-    #                 element.element_type = key
-    #                 data = i[1].getField(key)
-    # datastring = ''
-    # for j in data:
-    # print j
-    # datastring += j + ', '
-    #                 element.element_data = data
-    #                 element.save()
-
-    # return HttpResponseRedirect(reverse('home'))
-    #     response_data = []
-    #     response_data.append('added collection for harvesting')
-    # return HttpResponse(json.dumps(response_data), content_type="application/json")
-    #     return render(request, self.template_name, self.context)
 
 
 

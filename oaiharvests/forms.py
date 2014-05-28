@@ -18,7 +18,7 @@ class CreateRepositoryForm(ModelForm):
             registry.registerReader('oai_dc', oai_dc_reader)
             client = Client(cleaned_data.get('base_url'), registry)
             server = client.identify()
-            # set the repository name -- will apply to model instance when saved.
+            # set the repository name apply to model instance when saved.
             cleaned_data['name'] = server.repositoryName()
         except:
             raise ValidationError('Repository base url is invalid.')
@@ -37,127 +37,52 @@ class CreateRepositoryForm(ModelForm):
 
 
 class CreateCommunityForm(ModelForm):
-    # modify identifier field to show list of repository communities
-
-    community_list = []
-    def clean(self):
-        cleaned_data = super(CreateCommunityForm, self).clean()
-
-        for i in self.community_list:
-            if i[0] == cleaned_data['identifier']:
-                cleaned_data['name'] = i[1]
-                break
-
-        print 'clean->', self.community_list
-        return cleaned_data
-
-    def build_oai_set(self, repository):
-        print 'OAI request -> ', self.community_list
-        try:
-            registry = MetadataRegistry()
-            registry.registerReader('oai_dc', oai_dc_reader)
-            client = Client(repository.base_url, registry)
-            sets = client.listSets()
-        except:
-            raise ValidationError('Repository cannot be accessed.')
-            return None
-
-        """ Filter records to build list of community sets """
-        oai_communities = []
-        for i in sets:
-            set_id = i[0]
-            set_name = i[1]
-            """ Build collection tuples (id, human readable name) for use in dropdown """
-            if set_id[:3] == 'com':
-                set_data = []
-                set_data.append(set_id)
-                set_data.append(set_name)
-                oai_communities.append(set_data)
-            print i
-        return oai_communities
 
     def __init__(self, *args, **kwargs):
-        repo = kwargs.pop('repo')
-        if not self.community_list:
-            self.community_list = self.build_oai_set(repo)
+        try:
+            repo = kwargs.pop('repo')
+            communities = kwargs.pop('community_list')
+        except:
+            pass
 
         super(CreateCommunityForm, self).__init__(*args, **kwargs)
-        print 'com list->', self.community_list #self.fields['identifier'].widget.choices
 
-        # repository = kwargs['initial']['repository']        
-        self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=self.community_list))
-        self.fields['identifier'].label = 'Select Community Collection to Add:'
+        self.fields['identifier'] = forms.CharField(
+            widget=forms.Select(choices=communities))
+        self.fields['identifier'].label = 'Select Community Collection From ' + \
+            repo.name + ':'
+        self.fields['repository'].initial = repo
         self.fields['repository'].empty_label = None
-        
+        self.fields['repository'].label = repo.name
 
     class Meta:
         model = Community
         fields = ['identifier', 'name', 'repository']
-        widgets = {'name': forms.HiddenInput()}
+        widgets = {'name':
+                   forms.HiddenInput(), 'repository': forms.HiddenInput()}
+
 
 class CreateCollectionForm(ModelForm):
-    collection_list = []
-
-    def build_oai_collection(self, community):
-        print 'OAI request collections -> ', self.collection_list
-        
-        """ retrieve the header data for each record in the current community repo """
-        try:
-            registry = MetadataRegistry()
-            registry.registerReader('oai_dc', oai_dc_reader)
-            client = Client(community.repository.base_url, registry)
-            records = client.listIdentifiers(
-                metadataPrefix='oai_dc', set=community.identifier)
-        except:
-            raise ValidationError('Community collection cannot be accessed.')
-            return None
-
-        """ Filter records to build list of collections in the SET """
-        repository_collections = []
-        for i in records:
-            for j in i.setSpec():
-                if j[:3] == 'col':
-                    repository_collections.append(j)
-
-        community_collections = set(repository_collections)
-
-        """ Build collection tuples (id, human readable name) for use in dropdown """
-        oai_collections = []
-        sets = client.listSets()
-        for i in sets:
-            if i[0] in community_collections:
-                set_data = []
-                set_data.append(i[0]) # Store identifier
-                set_data.append(i[1]) # Store human readable name
-                oai_collections.append(set_data)
-        return oai_collections       
-
-    def clean(self):
-        print 'clean->'
-        cleaned_data = super(CreateCollectionForm, self).clean()
-        for i in self.collection_list:
-            print 'checking->', i[0]
-            if i[0] == cleaned_data['identifier']:
-                # cleaned_data['name'] = i[1]
-                break           
-        return cleaned_data
 
     def __init__(self, *args, **kwargs):
-        print 'init->', request.POST
-        community = kwargs.pop('community')
-        if not self.collection_list:
-            self.collection_list = self.build_oai_collection(community)
 
-        super(CreateCollectionForm, self).__init__(*args, **kwargs)              
-        self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=self.collection_list))
-        self.fields['identifier'].label = 'Select Collection to Add:'
+        try:
+            community = kwargs.pop('community')
+            collections = kwargs.pop('collections_list')
+        except:
+            pass
+
+        super(CreateCollectionForm, self).__init__(*args, **kwargs)
+
+        self.fields['identifier'] = forms.CharField(
+            widget=forms.Select(choices=collections))
+        self.fields['identifier'].label = 'Select Collection From ' + \
+            community.name + ':'
         self.fields['community'].initial = community
-        self.fields['community'].empty_label = None
+        self.fields['community'].label = community.name
 
     class Meta:
         model = Collection
         fields = ['identifier', 'name', 'community']
-        widgets = {'name': forms.HiddenInput()}
-
-
-
+        widgets = {'name':
+                   forms.HiddenInput(), 'community': forms.HiddenInput()}

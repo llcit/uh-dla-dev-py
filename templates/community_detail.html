@@ -1,6 +1,7 @@
 <!-- community_detail.html -->
 {% extends 'base.html' %}
 {% load staticfiles %}
+{% block page_title %}Community Collections{% endblock page_title %}
 
 {% block page_header %} {{ object.repository }} : {{ object.name }} {% endblock page_header %}
 
@@ -17,6 +18,8 @@
 	</h2>
 	{% for i in collections %}		
 		<h3>
+			<small><a href="{% url 'collection_edit' i.identifier %}">edit</a></small>
+			<small><a href="{% url 'collection_delete' i.identifier %}">remove</a></small>
 			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
 			<small> {{ i.identifier }} </small>
 		</h3>

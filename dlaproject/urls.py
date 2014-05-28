@@ -24,7 +24,7 @@ urlpatterns = patterns('',
                        url(r'^item/(?P<pk>\d+)$',
                            ItemView.as_view(), name='item'),
 
-                       # Institutional Repositories #
+                    # Institutional Repositories #
                        url(r'^oaiharvester/$', RepositoryListView.as_view(),
                            name='repository_list'),
 
@@ -40,9 +40,7 @@ urlpatterns = patterns('',
                        url(r'^oaiharvester/repository/(?P<pk>\w+)$',
                            RepositoryView.as_view(), name='repository'),
 
-                       url(r'^oaiharvester/communities/(?P<pk>\w+)$',
-                           RepositoryCommunityListView.as_view(
-                           ), name='community_list'),
+                    # Community Collections #
                        url(r'^oaiharvester/community/(?P<pk>\w+)$',
                            CommunityView.as_view(), name='community'),
                        url(r'^oaiharvester/community/add/(?P<pk>\w+)$',
@@ -55,6 +53,7 @@ urlpatterns = patterns('',
                            CommunityDeleteView.as_view(
                            ), name='community_delete'),
 
+                    # Collections #
                        url(r'^oaiharvester/collection/(?P<pk>\w+)$',
                            CollectionView.as_view(), name='collection'),
                        url(r'^oaiharvester/collection/add/(?P<pk>\w+)$',
@@ -65,21 +64,11 @@ urlpatterns = patterns('',
                            ), name='collection_edit'),
                        url(r'^oaiharvester/collection/delete/(?P<pk>\w+)$',
                            CollectionDeleteView.as_view(
-                           ), name='collection_delete'),
+                           ), name='collection_delete'),                      
+                       url(r'^oaiharvester/collection/harvest/(?P<pk>\w+)$',
+                           CollectionHarvestView.as_view(
+                           ), name='harvest_collection'),
 
-
-
-
-                       url(r'^harvest/repositories/$',
-                           HarvesterCommunityListView.as_view(
-                           ), name='repo_list'),
-                       url(r'^harvest/register/(?P<pk>\w+)$',
-                           HarvesterRegistrationView.as_view(
-                           ), name='register_comm'),
-                       # url(r'^harvest/community/(?P<pk>\w+)$', HarvesterCommunityView.as_view(), name='community'),
-                       # url(r'^harvest/collection/(?P<pk>\w+)$', HarvesterCollectionView.as_view(), name='collection'),
-                       url(r'^harvest/collection/(?P<pk>\w+)$',
-                           HarvestRecordsView.as_view(), name='harvest'),
 
                        url(r'^admin/', include(admin.site.urls)),
                        )

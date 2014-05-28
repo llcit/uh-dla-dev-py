@@ -68,11 +68,7 @@ class Record(TimeStampedModel):
     hdr_setSpec = models.ForeignKey(Collection)
 
     def remove_data(self):
-        data = MetadataElement.objects.filter(record=self)
-        try:
-            self.metadataelement_set.remove(data)
-        except:
-            pass
+        MetadataElement.objects.filter(record=self).delete()
         return
 
     def metadata_items(self):
@@ -92,7 +88,7 @@ class MetadataElement(models.Model):
     element_data = models.TextField(default='')
 
     def __unicode__(self):
-        return u'%s'%self.element_type
+        return u'%s:%s'%(self.element_type, self.element_data)
 
     def get_absolute_url(self):
         pass  # return reverse('collection', args=[str(self.id)])
