@@ -43,7 +43,7 @@ class Collection(TimeStampedModel):
     """Models the OAI standard conception of a SET"""
 
     identifier = models.CharField(primary_key=True, max_length=256)
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, blank=True)
     community = models.ForeignKey(Community, null=True, blank=True)
 
     def count_records(self):

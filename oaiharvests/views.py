@@ -131,8 +131,8 @@ class CollectionCreateView(DetailView):
         form = CreateCollectionForm(request.POST, community=self.get_object())
 
         if form.is_valid():
-            # form.save()
-            return HttpResponseRedirect(reverse('community', args=[str(self.get_object().id)]))
+            form.save()
+            return HttpResponseRedirect(reverse('community', args=[str(self.get_object().identifier)]))
 
         return render_to_response('collection_form.html', {'form': form})
         

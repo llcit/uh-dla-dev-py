@@ -109,61 +109,49 @@ class CreateCollectionForm(ModelForm):
             records = client.listIdentifiers(
                 metadataPrefix='oai_dc', set=community.identifier)
         except:
-            raise ValidationError('Repository cannot be accessed.')
+            raise ValidationError('Community collection cannot be accessed.')
             return None
 
         """ Filter records to build list of collections in the SET """
-        remote_collections = []
+        repository_collections = []
         for i in records:
             for j in i.setSpec():
                 if j[:3] == 'col':
-                    remote_collections.append(j)
+                    repository_collections.append(j)
 
-        print remote_collections
-        community_collections = set(remote_collections)
-        print 'set',community_collections
+        community_collections = set(repository_collections)
 
-        """ Build collection object (id and human readable name) """
+        """ Build collection tuples (id, human readable name) for use in dropdown """
         oai_collections = []
         sets = client.listSets()
         for i in sets:
             if i[0] in community_collections:
-                """ Retrieve or create a collection obj """
-                set_id = i[0]
-                set_name = i[1]
-                """ Build collection tuples (id, human readable name) for use in dropdown """
-                if set_id[:3] == 'col':
-                    set_data = []
-                    set_data.append(set_id)
-                    set_data.append(set_name)
-                    oai_collections.append(set_data)
-                    print 'added' , set_data
+                set_data = []
+                set_data.append(i[0]) # Store identifier
+                set_data.append(i[1]) # Store human readable name
+                oai_collections.append(set_data)
         return oai_collections       
 
     def clean(self):
+        print 'clean->'
         cleaned_data = super(CreateCollectionForm, self).clean()
-
         for i in self.collection_list:
-            print i
+            print 'checking->', i[0]
             if i[0] == cleaned_data['identifier']:
-                cleaned_data['name'] = i[1]
-                break
-
-        print 'clean->', self.collection_list
+                # cleaned_data['name'] = i[1]
+                break           
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
+        print 'init->', request.POST
         community = kwargs.pop('community')
         if not self.collection_list:
             self.collection_list = self.build_oai_collection(community)
-            print 'col list->', self.collection_list #self.fields['identifier'].widget.choices
 
-
-        super(CreateCollectionForm, self).__init__(*args, **kwargs)
-
-        # repository = kwargs['initial']['repository']        
+        super(CreateCollectionForm, self).__init__(*args, **kwargs)              
         self.fields['identifier'] = forms.CharField(widget=forms.Select(choices=self.collection_list))
         self.fields['identifier'].label = 'Select Collection to Add:'
+        self.fields['community'].initial = community
         self.fields['community'].empty_label = None
 
     class Meta:
