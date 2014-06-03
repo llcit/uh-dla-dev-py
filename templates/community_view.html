@@ -1,12 +1,13 @@
-<!-- index.html -->
+<!-- community_view.html -->
 {% extends 'base.html' %}
 
 {% block page_header %}Kaipuleohone <small>A Digital Language Archive</small>{% endblock page_header %}
 
 {% block content %}
-	<ul>
-	{% for i in communities %}
-		<h4> <a href="{% url 'community' i.identifier %}"> {{ i }}</a>  </h4>
+	<h4> {{ object }} </h4>
+	
+	{% for i in collections %}
+		<h5><a href="{% url 'collection' i.identifier %}"> {{ i }} </a></h5>
 	{% endfor %}
-	</ul>
+
 {% endblock content %}

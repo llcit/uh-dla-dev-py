@@ -3,23 +3,31 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from dlasite.views import HomeView, CollectionListView, CollectionView, ItemView
-from oaiharvests.views import *
-
-# (
-# 	HarvesterCommunityListView,
-# 	HarvesterRegistrationView,
-# 	HarvesterCollectionView,
-# 	HarvesterCommunityView,
-# 	HarvestRecordsView
-
-# )
+from dlasite.views import HomeView, CommunityView, CollectionListView, CollectionView, ItemView
+from oaiharvests.views import (
+    OaiRepositoryListView, 
+    OaiRepositoryCreateView, 
+    OaiRepositoryUpdateView, 
+    OaiRepositoryDeleteView, 
+    OaiRepositoryView,
+    OaiCommunityView,
+    OaiCommunityCreateView,
+    OaiCommunityUpdateView,
+    OaiCommunityDeleteView,
+    OaiCollectionView,
+    OaiCollectionCreateView,
+    OaiCollectionUpdateView,
+    OaiCollectionDeleteView,
+    OaiCollectionHarvestView
+)
 
 urlpatterns = patterns('',
 
-# ---------- SITE VIEWS ------------- #
+                       # ---------- SITE VIEWS ------------- #
 
                        url(r'^$', HomeView.as_view(), name='home'),
+                       url(r'^community/(?P<pk>\w+)$',
+                           CommunityView.as_view(), name='community'),                       
                        url(r'^collections/$', CollectionListView.as_view(),
                            name='collection_list'),
                        url(r'^collection/(?P<pk>\w+)$',
@@ -28,51 +36,50 @@ urlpatterns = patterns('',
                            ItemView.as_view(), name='item'),
 
 
-# ---------- OAI HARVESTER VIEWS ------------- #
-                    # Institutional Repositories #
-                       url(r'^oaiharvester/$', RepositoryListView.as_view(),
-                           name='repository_list'),
-
+                       # ---------- OAI HARVESTER VIEWS ------------- #
+                       # Institutional Repositories #
+                       url(r'^oaiharvester/$', OaiRepositoryListView.as_view(),
+                           name='oai_repository_list'),
                        url(r'^oaiharvester/repository/add/$',
-                           RepositoryCreateView.as_view(
-                           ), name='repository_add'),
+                           OaiRepositoryCreateView.as_view(
+                           ), name='oai_repository_add'),
                        url(r'^oaiharvester/repository/edit/(?P<pk>\w+)$',
-                           RepositoryUpdateView.as_view(
-                           ), name='repository_edit'),
+                           OaiRepositoryUpdateView.as_view(
+                           ), name='oai_repository_edit'),
                        url(r'^oaiharvester/repository/delete/(?P<pk>\w+)$',
-                           RepositoryDeleteView.as_view(
-                           ), name='repository_delete'),
+                           OaiRepositoryDeleteView.as_view(
+                           ), name='oai_repository_delete'),
                        url(r'^oaiharvester/repository/(?P<pk>\w+)$',
-                           RepositoryView.as_view(), name='repository'),
+                           OaiRepositoryView.as_view(), name='oai_repository'),
 
-                    # Community Collections #
+                       # Community Collections #
                        url(r'^oaiharvester/community/(?P<pk>\w+)$',
-                           CommunityView.as_view(), name='community'),
+                           OaiCommunityView.as_view(), name='oai_community'),
                        url(r'^oaiharvester/community/add/(?P<pk>\w+)$',
-                           CommunityCreateView.as_view(
-                           ), name='community_add'),
+                           OaiCommunityCreateView.as_view(
+                           ), name='oai_community_add'),
                        url(r'^oaiharvester/community/edit/(?P<pk>\w+)$',
-                           CommunityUpdateView.as_view(
-                           ), name='community_edit'),
+                           OaiCommunityUpdateView.as_view(
+                           ), name='oai_community_edit'),
                        url(r'^oaiharvester/community/delete/(?P<pk>\w+)$',
-                           CommunityDeleteView.as_view(
-                           ), name='community_delete'),
+                           OaiCommunityDeleteView.as_view(
+                           ), name='oai_community_delete'),
 
-                    # Collections #
+                       # Collections #
                        url(r'^oaiharvester/collection/(?P<pk>\w+)$',
-                           OAICollectionView.as_view(), name='oai_collection'),
+                           OaiCollectionView.as_view(), name='oai_collection'),
                        url(r'^oaiharvester/collection/add/(?P<pk>\w+)$',
-                           CollectionCreateView.as_view(
-                           ), name='collection_add'),
+                           OaiCollectionCreateView.as_view(
+                           ), name='oai_collection_add'),
                        url(r'^oaiharvester/collection/edit/(?P<pk>\w+)$',
-                           CollectionUpdateView.as_view(
-                           ), name='collection_edit'),
+                           OaiCollectionUpdateView.as_view(
+                           ), name='oai_collection_edit'),
                        url(r'^oaiharvester/collection/delete/(?P<pk>\w+)$',
-                           CollectionDeleteView.as_view(
-                           ), name='collection_delete'),                      
+                           OaiCollectionDeleteView.as_view(
+                           ), name='oai_collection_delete'),
                        url(r'^oaiharvester/collection/harvest/(?P<pk>\w+)$',
-                           CollectionHarvestView.as_view(
-                           ), name='harvest_collection'),
+                           OaiCollectionHarvestView.as_view(
+                           ), name='oai_harvest_collection'),
 
 
                        url(r'^admin/', include(admin.site.urls)),

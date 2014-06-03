@@ -14,12 +14,12 @@
 	{% endif %}
 
 	<h2> {{ object.name }} 
-		<small><a href="{% url 'collection_add' object.identifier %}">add a collection</a></small>
+		<small><a href="{% url 'oai_collection_add' object.identifier %}">add a collection</a></small>
 	</h2>
 	{% for i in collections %}		
 		<h3>
-			<small><a href="{% url 'collection_edit' i.identifier %}">edit</a></small>
-			<small><a href="{% url 'collection_delete' i.identifier %}">remove</a></small>
+			<small><a href="{% url 'oai_collection_edit' i.identifier %}">edit</a></small>
+			<small><a href="{% url 'oai_collection_delete' i.identifier %}">remove</a></small>
 			<a href="{{ i.get_absolute_url }}">{{ i.name }}</a>
 			<small> {{ i.identifier }} </small>
 		</h3>

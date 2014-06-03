@@ -15,10 +15,10 @@
 	{% endif %}
 
 	<h2> {{ object.name }}
-		<small><a href="{% url 'collection_edit' object.identifier %}">edit</a></small>
-		<small><a href="{% url 'collection_delete' object.identifier %}">remove</a></small>
+		<small><a href="{% url 'oai_collection_edit' object.identifier %}">edit</a></small>
+		<small><a href="{% url 'oai_collection_delete' object.identifier %}">remove</a></small>
 	</h2>
-	<h3><a href="{% url 'harvest_collection' object.identifier %}">harvest</a></h3>
+	<h3><a href="{% url 'oai_harvest_collection' object.identifier %}">harvest</a></h3>
 	<h5> OAI Identifier: {{ object.identifier }}</h5>
 	<h5> Community: {{ object.community }}</h5>
 	<h5> Number of records harvested: {{ num_records }}</h5>

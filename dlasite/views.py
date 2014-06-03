@@ -1,14 +1,24 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, DetailView
 
-from oaiharvests.models import Collection, Record
+from oaiharvests.models import Community, Collection, Record
 
 class HomeView(TemplateView):
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
+        context['communities'] = Community.objects.all()
         return context
+
+class CommunityView(DetailView):
+	model = Community
+	template_name = 'community_view.html'
+
+	def get_context_data(self, **kwargs):
+	    context = super(CommunityView, self).get_context_data(**kwargs)
+	    context['collections'] = self.get_object().list_collections()
+	    return context
 
 class CollectionListView(ListView):
 	model = Collection

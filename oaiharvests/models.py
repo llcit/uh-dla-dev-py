@@ -17,7 +17,7 @@ class Repository(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('repository', args=[str(self.id)])
+        return reverse('oai_repository', args=[str(self.id)])
 
 
 class Community(TimeStampedModel):
@@ -35,7 +35,7 @@ class Community(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('community', args=[str(self.identifier)])
+        return reverse('oai_community', args=[str(self.identifier)])
 
 
 class Collection(TimeStampedModel):
@@ -56,13 +56,13 @@ class Collection(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-       return reverse('collection', args=[str(self.identifier)])
+       return reverse('oai_collection', args=[str(self.identifier)])
 
 
 class Record(TimeStampedModel):
 
     """OAI conception of an ITEM"""
-    identifier = models.CharField(max_length=256)
+    identifier = models.CharField(max_length=256, unique=True)
     hdr_datestamp = models.DateTimeField()
     hdr_setSpec = models.ForeignKey(Collection)
 
@@ -77,7 +77,7 @@ class Record(TimeStampedModel):
         return '%s...%s'%(self.hdr_setSpec, self.identifier[20:])
 
     def get_absolute_url(self):
-        return reverse('item', args=[str(self.identifier[self.identifier.find('/')+1:])])
+        return reverse('item', args=[str(self.id)])
 
 class MetadataElement(models.Model):
 
