@@ -16,14 +16,19 @@ from oaiharvests.views import *
 # )
 
 urlpatterns = patterns('',
+
+# ---------- SITE VIEWS ------------- #
+
                        url(r'^$', HomeView.as_view(), name='home'),
                        url(r'^collections/$', CollectionListView.as_view(),
                            name='collection_list'),
-                       url(r'^collection/(?P<pk>\d+)$',
+                       url(r'^collection/(?P<pk>\w+)$',
                            CollectionView.as_view(), name='collection'),
-                       url(r'^item/(?P<pk>\d+)$',
+                       url(r'^item/(?P<pk>\w+)$',
                            ItemView.as_view(), name='item'),
 
+
+# ---------- OAI HARVESTER VIEWS ------------- #
                     # Institutional Repositories #
                        url(r'^oaiharvester/$', RepositoryListView.as_view(),
                            name='repository_list'),
@@ -55,7 +60,7 @@ urlpatterns = patterns('',
 
                     # Collections #
                        url(r'^oaiharvester/collection/(?P<pk>\w+)$',
-                           CollectionView.as_view(), name='collection'),
+                           OAICollectionView.as_view(), name='oai_collection'),
                        url(r'^oaiharvester/collection/add/(?P<pk>\w+)$',
                            CollectionCreateView.as_view(
                            ), name='collection_add'),

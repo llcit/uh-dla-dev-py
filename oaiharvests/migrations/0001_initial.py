@@ -33,16 +33,17 @@ class Migration(SchemaMigration):
             ('created', self.gf('model_utils.fields.AutoCreatedField')(default=datetime.datetime.now)),
             ('modified', self.gf('model_utils.fields.AutoLastModifiedField')(default=datetime.datetime.now)),
             ('identifier', self.gf('django.db.models.fields.CharField')(max_length=256, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=256)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=256, blank=True)),
             ('community', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oaiharvests.Community'], null=True, blank=True)),
         ))
         db.send_create_signal(u'oaiharvests', ['Collection'])
 
         # Adding model 'Record'
         db.create_table(u'oaiharvests_record', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('model_utils.fields.AutoCreatedField')(default=datetime.datetime.now)),
             ('modified', self.gf('model_utils.fields.AutoLastModifiedField')(default=datetime.datetime.now)),
-            ('identifier', self.gf('django.db.models.fields.CharField')(max_length=256, primary_key=True)),
+            ('identifier', self.gf('django.db.models.fields.CharField')(max_length=256)),
             ('hdr_datestamp', self.gf('django.db.models.fields.DateTimeField')()),
             ('hdr_setSpec', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oaiharvests.Collection'])),
         ))
@@ -51,9 +52,9 @@ class Migration(SchemaMigration):
         # Adding model 'MetadataElement'
         db.create_table(u'oaiharvests_metadataelement', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('record', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oaiharvests.Record'])),
+            ('record', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oaiharvests.Record'], null=True)),
             ('element_type', self.gf('django.db.models.fields.CharField')(max_length=256)),
-            ('element_data', self.gf('django.db.models.fields.TextField')(default=' ')),
+            ('element_data', self.gf('django.db.models.fields.TextField')(default='')),
         ))
         db.send_create_signal(u'oaiharvests', ['MetadataElement'])
 
@@ -63,6 +64,7 @@ class Migration(SchemaMigration):
             ('created', self.gf('model_utils.fields.AutoCreatedField')(default=datetime.datetime.now)),
             ('modified', self.gf('model_utils.fields.AutoLastModifiedField')(default=datetime.datetime.now)),
             ('collection', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['oaiharvests.Collection'])),
+            ('harvest_date', self.gf('django.db.models.fields.DateTimeField')()),
         ))
         db.send_create_signal(u'oaiharvests', ['HarvestRegistration'])
 
@@ -94,7 +96,7 @@ class Migration(SchemaMigration):
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),
             'identifier': ('django.db.models.fields.CharField', [], {'max_length': '256', 'primary_key': 'True'}),
             'modified': ('model_utils.fields.AutoLastModifiedField', [], {'default': 'datetime.datetime.now'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'blank': 'True'})
         },
         u'oaiharvests.community': {
             'Meta': {'object_name': 'Community'},
@@ -108,22 +110,24 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'HarvestRegistration'},
             'collection': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['oaiharvests.Collection']"}),
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),
+            'harvest_date': ('django.db.models.fields.DateTimeField', [], {}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('model_utils.fields.AutoLastModifiedField', [], {'default': 'datetime.datetime.now'})
         },
         u'oaiharvests.metadataelement': {
             'Meta': {'object_name': 'MetadataElement'},
-            'element_data': ('django.db.models.fields.TextField', [], {'default': "' '"}),
+            'element_data': ('django.db.models.fields.TextField', [], {'default': "''"}),
             'element_type': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'record': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['oaiharvests.Record']"})
+            'record': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['oaiharvests.Record']", 'null': 'True'})
         },
         u'oaiharvests.record': {
             'Meta': {'object_name': 'Record'},
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),
             'hdr_datestamp': ('django.db.models.fields.DateTimeField', [], {}),
             'hdr_setSpec': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['oaiharvests.Collection']"}),
-            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '256', 'primary_key': 'True'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'modified': ('model_utils.fields.AutoLastModifiedField', [], {'default': 'datetime.datetime.now'})
         },
         u'oaiharvests.repository': {

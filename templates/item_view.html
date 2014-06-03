@@ -1,0 +1,11 @@
+<!-- item_view.html -->
+{% extends 'base.html' %}
+
+{% block page_header %}Kaipuleohone <small>A Digital Language Archive</small>{% endblock page_header %}
+
+{% block content %}
+	<h4>{{ object }}</h4>
+	{% for i item_data %}
+		<h5><i>{{ i.element_type }}</i>: <b>{{ i.element_data }}</b></h5>
+	{% endfor %}		
+{% endblock content %}

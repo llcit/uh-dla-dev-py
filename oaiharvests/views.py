@@ -122,12 +122,12 @@ class CommunityDeleteView(DeleteView):
         return context
 
 
-class CollectionView(DetailView):
+class OAICollectionView(DetailView):
     model = Collection
     template_name = 'collection_detail.html'
 
     def get_context_data(self, **kwargs):
-        context = super(CollectionView, self).get_context_data(**kwargs)
+        context = super(OAICollectionView, self).get_context_data(**kwargs)
         context['num_records'] = self.get_object().count_records()
         return context
 

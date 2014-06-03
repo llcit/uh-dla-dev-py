@@ -62,8 +62,7 @@ class Collection(TimeStampedModel):
 class Record(TimeStampedModel):
 
     """OAI conception of an ITEM"""
-
-    identifier = models.CharField(primary_key=True, max_length=256)
+    identifier = models.CharField(max_length=256)
     hdr_datestamp = models.DateTimeField()
     hdr_setSpec = models.ForeignKey(Collection)
 
@@ -78,7 +77,7 @@ class Record(TimeStampedModel):
         return '%s...%s'%(self.hdr_setSpec, self.identifier[20:])
 
     def get_absolute_url(self):
-        pass  # return reverse('collection', args=[str(self.id)])
+        return reverse('item', args=[str(self.identifier[self.identifier.find('/')+1:])])
 
 class MetadataElement(models.Model):
 

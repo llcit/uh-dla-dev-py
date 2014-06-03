@@ -1,0 +1,13 @@
+<!-- collection_view.html -->
+{% extends 'base.html' %}
+
+{% block page_header %}Kaipuleohone <small>A Digital Language Archive</small>{% endblock page_header %}
+
+{% block content %}
+	<h4><a href="{{ object.get_absolute_url }}"> {{ object }} </a></h4>
+	
+	{% for i in items %}
+		<h5><a href="{{ i.get_absolute_url }}"> {{ i }} </a></h5>
+	{% endfor %}
+
+{% endblock content %}
