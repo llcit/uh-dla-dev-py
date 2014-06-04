@@ -5,7 +5,7 @@ body {
   height: 100%;
   background: #fff !important;
   padding: 15px;
-  padding-top: 20px;
+  padding-top: 15px;
 }
 
 /******************************* Sticky Footer Style *******************************/
@@ -20,7 +20,10 @@ body {
 }
 
 .navbar {
-  background-color: white;
+  /*height: 100px;*/
+  background-color: #fff;
+  background: url(/static/img/KaipuleohoneScholarSpaceCollection-cropped.png) top left no-repeat;
+  background-size: contain;
 }
 
 #wrap > .container {

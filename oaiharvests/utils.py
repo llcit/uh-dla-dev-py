@@ -61,6 +61,7 @@ class OAIUtils(object):
             records = client.listIdentifiers(
                 metadataPrefix='oai_dc', set=community.identifier)
         except:
+            community_collections = []
             return
 
         """ Filter records to build list of collections in the community set """

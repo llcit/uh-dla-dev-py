@@ -73,8 +73,11 @@ class Record(TimeStampedModel):
     def metadata_items(self):
         return self.metadataelement_set.all()
 
+    def get_metadata_item(self, e_type):
+        return self.metadata_items().get(element_type=e_type)
+
     def __unicode__(self):
-        return '%s...%s'%(self.hdr_setSpec, self.identifier[20:])
+        return '%s - %s'%(self.hdr_setSpec, self.get_metadata_item('title').element_data)
 
     def get_absolute_url(self):
         return reverse('item', args=[str(self.id)])

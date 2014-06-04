@@ -156,6 +156,8 @@ class OaiCollectionCreateView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(OaiCollectionCreateView, self).get_context_data(**kwargs)        
+        
+        # self.oai = OAIUtils()
         self.oai.list_oai_collections(self.get_object())
         form = CreateCollectionForm(community=self.get_object(), collections_list=self.oai.collections)
         context['form'] = form
