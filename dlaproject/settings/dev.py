@@ -1,4 +1,8 @@
-# dev.py
+# settings/dev.py
+
+# Example use with manage.py:
+# $ python manage.py runserver --settings=dlaproject.settings.dev
+
 from .base import *
 
 # Secret key stored in your local environment variable not here.
