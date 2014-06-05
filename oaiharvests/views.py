@@ -205,9 +205,12 @@ class OaiCollectionHarvestView(DetailView):
                 record = Record.objects.get(identifier=i[0].identifier())
                 
                 """ Check Harvest Date """
-                if repo_date > record.hdr_datestamp:
-                    record.remove_data()
-                    record.hdr_datestamp = repo_date
+                # if repo_date > record.hdr_datestamp:
+                    # record.remove_data()
+                    # record.hdr_datestamp = repo_date
+                record.remove_data()
+                record.hdr_datestamp = repo_date
+
             except:
                 record = Record()
                 record.identifier = i[0].identifier()
