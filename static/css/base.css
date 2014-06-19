@@ -41,3 +41,28 @@ body {
   padding-right: 15px;
 }
 /******************************* End Sticky Footer Style *******************************/
+
+/******************************** Box Borders **********************************************/
+.row .my-inner {
+  border: 1px solid black;
+  padding: 5px;
+  margin: 10px 1px 1px 1px;
+}
+
+#search {
+  border: 1px solid black;
+  padding: 1px;
+  margin: 10px;
+}
+/******************************** End Box Borders **********************************************/
+
+/******************************** Map and Table **********************************************/
+#map-canvas{
+    background-color: lightgrey;
+    width: 400px;
+    height: 350px;
+    border :solid 2px black;
+    padding: 3px;
+    border-radius:8px;
+}
+/******************************** End Map and table **********************************************/

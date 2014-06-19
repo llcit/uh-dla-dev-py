@@ -3,12 +3,26 @@ from django.views.generic import TemplateView, ListView, DetailView
 
 from oaiharvests.models import Community, Collection, Record
 
+import json
+import pdb
+
 class HomeView(TemplateView):
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
+    	#Grab the coordinates for objects with dc_coverage
+    	records = Record.objects.all()
+    	record_array = []
+    	for record in records:
+    		# pdb.set_trace()
+       		if record.get_coordinates()['North'] != 'none':
+       			record_array.append(record.get_coordinates())
+   		#Encode output to json format
+   		#pdb.set_trace()
+    	jsonStr=json.dumps(record_array)
         context = super(HomeView, self).get_context_data(**kwargs)
         context['communities'] = Community.objects.all()
+        context['jsonStr']=unicode(jsonStr)
         context['default'] = get_object_or_404(Community, identifier='com_10125_4250') #Community.objects.filter(identifier='com_10125_4250')
         return context
 

@@ -58,6 +58,19 @@ class Collection(TimeStampedModel):
     def get_absolute_url(self):
        return reverse('oai_collection', args=[str(self.identifier)])
 
+# class RecordManager(models.Manager):
+#     def get_coordinates(self):
+#         position = self.get_metadata_item('coverage')[0].element_data
+#         if position:
+#             #Has coverage info
+#             north=position.partition(';')[0].partition('=')[2]
+#             east=position.partition(';')[0].partition('=')[2]
+#             coordinates = north + east
+#         else:
+#             #No coverage info
+#             coordinates = 'false'
+#         return coordinates
+
 
 class Record(TimeStampedModel):
 
@@ -81,6 +94,23 @@ class Record(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('item', args=[str(self.id)])
+
+    """Function to get the coordinates of the element to plot in map """
+    def get_coordinates(self):
+        position = self.get_metadata_item('coverage')[0].element_data
+        if position:
+            #Has coverage info
+            north=position.partition(';')[0].partition('=')[2]
+            east=position.partition(';')[2].partition('=')[2]
+            #Dictionary to hold record element and north and east position
+            dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":north, "East":east}
+        else:
+            #No coverage info
+            dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":"none", "East":"none"}
+        #Dictionary returned from function    
+        return dict
+
+    
 
 class MetadataElement(models.Model):
 
