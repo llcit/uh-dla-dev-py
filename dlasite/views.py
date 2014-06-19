@@ -14,7 +14,7 @@ class HomeView(TemplateView):
     	records = Record.objects.all()
     	record_array = []
     	for record in records:
-    		# pdb.set_trace()
+    		#pdb.set_trace()
        		if record.get_coordinates()['North'] != 'none':
        			record_array.append(record.get_coordinates())
    		#Encode output to json format

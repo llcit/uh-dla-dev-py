@@ -24,7 +24,7 @@ function drawTable(map) {
 	var table_options = {
 		showRowNumber: true,
 		height: '350px',
-		width: '6000px',
+		width: '600px',
 		page: 'enable',
 		pageSize: 20
 	}
