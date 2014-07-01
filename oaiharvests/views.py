@@ -232,6 +232,7 @@ class OaiCollectionHarvestView(DetailView):
                 #     datastring += i
                 # print datastring
                 element.element_data = ' '.join(data)
+                print data
                 element.save()
 
         context['records'] = self.get_object().record_set.all()

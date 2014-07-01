@@ -1,7 +1,7 @@
 function initializeLanguageMap() {
   	//Save languages center coordinates to plot into the map
 	for (var i = 0; i<json.length; ++i) {
-		// extra_data[i] = collection.element[i].dc_subject_language
+		extra_data[i] = json[i].Language
 		east[i] = json[i].East;
 		north[i] = json[i].North;
 		languageCenter[i] = north[i] + ' ' + east[i]
@@ -46,8 +46,8 @@ function initializeLanguageMap() {
 		languageCircle [i] = new google.maps.Circle(languageOptions);
 
 		//Text to display when hovering languages on map
-		text = ""
-		contentString.push('<p>' + extra_dataNoDuplates[i] + circleCenter[i] + '</p>')
+		text = "";
+		contentString.push('<p> <b>Language:</b> ' + extra_dataNoDuplates[i] + '<br> <b>Coordinates:</b> ' + circleCenter[i] + '</p>')
 		
 		// Example to Format the Text 
 		//var contentString = '<div id="content">'+

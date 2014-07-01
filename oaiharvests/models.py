@@ -58,20 +58,6 @@ class Collection(TimeStampedModel):
     def get_absolute_url(self):
        return reverse('oai_collection', args=[str(self.identifier)])
 
-# class RecordManager(models.Manager):
-#     def get_coordinates(self):
-#         position = self.get_metadata_item('coverage')[0].element_data
-#         if position:
-#             #Has coverage info
-#             north=position.partition(';')[0].partition('=')[2]
-#             east=position.partition(';')[0].partition('=')[2]
-#             coordinates = north + east
-#         else:
-#             #No coverage info
-#             coordinates = 'false'
-#         return coordinates
-
-
 class Record(TimeStampedModel):
 
     """OAI conception of an ITEM"""
@@ -90,7 +76,7 @@ class Record(TimeStampedModel):
         return self.metadata_items().filter(element_type=e_type)
 
     def __unicode__(self):
-        return '%s - %s'%(self.hdr_setSpec, self.get_metadata_item('title').element_data)
+        return '%s - %s'%(self.hdr_setSpec, self.get_metadata_item('title')[0].element_data)
 
     def get_absolute_url(self):
         return reverse('item', args=[str(self.id)])

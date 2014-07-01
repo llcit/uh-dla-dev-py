@@ -31,18 +31,12 @@
 			<div class="my-inner">
 				<h5>Browse by Collection</h5>
 				<div class="list-group">
-  					<a href="#" class="list-group-item">
-    					<span class="badge">14</span>
-    					Cras justo odio
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">8</span>
-    					Lorem
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">32</span>
-    					ipsum
-  					</a>
+					{% for collection in collections %}
+  						<a href="#" class="list-group-item">
+    						<span class="badge">{{ collection.count_records }}</span>
+    						{{ collection }}
+  						</a>
+  					{% endfor %}
 				</div>
 			</div>
 		</div>
@@ -50,18 +44,12 @@
 			<div class="my-inner">
 				<h5>Browse by Language</h5>
 				<div class="list-group">
-  					<a href="#" class="list-group-item">
-    					<span class="badge">14</span>
-    					Cras justo odio
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">8</span>
-    					Lorem
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">32</span>
-    					ipsum
-  					</a>
+  					{% for language in language_array %}
+  						<a href="#" class="list-group-item">
+    						<span class="badge">14</span>
+    						{{ language }}
+  						</a>
+  					{% endfor %}
 				</div>
 			</div>
 		</div>
@@ -69,18 +57,12 @@
 			<div class="my-inner">
 				<h5>Browse by depositor</h5>
 				<div class="list-group">
-  					<a href="#" class="list-group-item">
-    					<span class="badge">14</span>
-    					Cras justo odio
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">8</span>
-    					Lorem
-  					</a>
-  					<a href="#" class="list-group-item">
-    					<span class="badge">32</span>
-    					ipsum
-  					</a>
+  					{% for creator in creator_array %}
+  						<a href="#" class="list-group-item">
+    						<span class="badge">10</span>
+    						{{ creator }}
+  						</a>
+  					{% endfor %}
 				</div>
 			</div>
 		</div>
