@@ -32,7 +32,7 @@
 				<h5>Browse by Collection</h5>
 				<div class="list-group">
 					{% for collection in collections %}
-  						<a href="#" class="list-group-item">
+  						<a href="collection/{{ collection.identifier }}" class="list-group-item">
     						<span class="badge">{{ collection.count_records }}</span>
     						{{ collection }}
   						</a>
@@ -44,9 +44,9 @@
 			<div class="my-inner">
 				<h5>Browse by Language</h5>
 				<div class="list-group">
-  					{% for language in language_array %}
+  					{% for language, times in languages.items %}
   						<a href="#" class="list-group-item">
-    						<span class="badge">14</span>
+    						<span class="badge">{{times}}</span>
     						{{ language }}
   						</a>
   					{% endfor %}
@@ -57,9 +57,9 @@
 			<div class="my-inner">
 				<h5>Browse by depositor</h5>
 				<div class="list-group">
-  					{% for creator in creator_array %}
+  					{% for creator, times in creators.items %}
   						<a href="#" class="list-group-item">
-    						<span class="badge">10</span>
+    						<span class="badge">{{times}}</span>
     						{{ creator }}
   						</a>
   					{% endfor %}
@@ -88,7 +88,6 @@
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <!--Internal js files-->
-    <script src="static/js/sample_collection.json"></script>
     <script src="static/js/map.js"></script>
     <script src="static/js/table.js"></script>
     <script src="static/js/code.js"></script>

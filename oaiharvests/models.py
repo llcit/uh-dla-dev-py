@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 
 from model_utils.models import TimeStampedModel
 
+import json
+
 class Repository(TimeStampedModel):
 
     """ A institutional digital library OAI service provider -- e.g., ScholarSpace """
@@ -83,16 +85,16 @@ class Record(TimeStampedModel):
 
     """Function to get the coordinates of the element to plot in map """
     def get_coordinates(self):
-        position = self.get_metadata_item('coverage')[0].element_data
+        position = json.loads(self.get_metadata_item('coverage')[0].element_data)
+        #Has coverage info
         if position:
-            #Has coverage info
-            north=position.partition(';')[0].partition('=')[2]
-            east=position.partition(';')[2].partition('=')[2]
             #Dictionary to hold record element and north and east position
-            dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":north, "East":east}
+            #dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":position[0], "East":position[1]}
+            dict = {"Record":self.get_metadata_item('title')[0].element_data,"Language":self.get_metadata_item('language')[0].element_data,"North":position[0], "East":position[1]}
         else:
             #No coverage info
-            dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":"none", "East":"none"}
+            #dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":"none", "East":"none"}
+            dict = {"Record":self.get_metadata_item('title')[0].element_data,"Language":self.get_metadata_item('language')[0].element_data,"North":"none", "East":"none"}
         #Dictionary returned from function    
         return dict
 

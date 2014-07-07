@@ -4,6 +4,7 @@
 {% block page_header %}<small>{{ object }}</small>{% endblock page_header %}
 
 {% block content %}
+
 	{% for i in item_data %}
 		<h5><i>{{ i.element_type }}</i>: <b>{{ i.element_data }}</b></h5>
 	{% endfor %}		

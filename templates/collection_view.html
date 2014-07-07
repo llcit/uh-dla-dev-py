@@ -4,8 +4,60 @@
 {% block page_header %}{{ object }}{% endblock page_header %}
 
 {% block content %}	
-	{% for i in items %}
-		<h5><a href="{{ i.get_absolute_url }}"> {{ i }} </a></h5>
-	{% endfor %}
+
+	<div class="row">
+		<div class="col-md-6">
+			<div class="my-inner">The <b>{{object}}</b> : <br> " This is a test to show the info for the collection. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</div>
+		</div>
+		<div class="col-md-6">
+			<div class="my-inner">
+				<div id="map-canvas"></div>
+    			<div id="table"></div>
+    		</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div id="search" class="col-md-12">
+				<div class="form-group">
+	    			<label for="search" class="col-md-2 control-label">Search {{object}}</label>
+	    			<div class="col-md-10">
+	      				<input type="text" class="form-control" id="search" placeholder="">
+	    			</div>
+	    		</div>
+  		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+			{% for i in items %}
+			<div class="my-inner">
+				<h5><a href="{{ i.get_absolute_url }}"> {{ i }} </a></h5>
+				<ul>
+					{% for j in i.metadata_items %}
+						<li>{{j}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
 
 {% endblock content %}
+
+{% block js_script %}
+	<script type="text/javascript">
+		//Get the coordinates info and data from the records inside the DOM
+        var json = {{ jsonStr|safe }};
+    </script>
+{% endblock js_script %}
+
+{% block js_include %}
+	<!--External js libraries-->
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <!--Internal js files-->
+    <script src="../static/js/map.js"></script>
+    <script src="../static/js/table.js"></script>
+    <script src="../static/js/code.js"></script>
+{% endblock js_include %}

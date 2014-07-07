@@ -59,7 +59,7 @@ body {
 /******************************** Map and Table **********************************************/
 #map-canvas{
     background-color: lightgrey;
-    width: 400px;
+    width: 600px;
     height: 350px;
     border :solid 2px black;
     padding: 3px;

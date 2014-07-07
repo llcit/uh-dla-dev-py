@@ -21,9 +21,10 @@ function initializeLanguageMap() {
 		circleCenter[i] = new google.maps.LatLng(temporary[0],temporary[1])
 	}
 
-	var mapcenter = new google.maps.LatLng(43.5333,5.7000);
+	if (typeof circleCenter[0] != 'undefined') var mapcenter = new google.maps.LatLng(circleCenter[0].k, circleCenter[0].B);
+	else var mapcenter = new google.maps.LatLng(0, 0);
 	var mapOptions = {
-	zoom: 1,
+	zoom: 3,
 	minZoom:1,
 	center: mapcenter
 	};

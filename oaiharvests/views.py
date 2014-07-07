@@ -20,6 +20,9 @@ from .models import Repository, Community, Collection, MetadataElement, Record
 from .forms import CreateRepositoryForm, CreateCommunityForm, CreateCollectionForm
 from .utils import OAIUtils
 
+#For debugging purposes
+import pdb
+
 class OaiRepositoryListView(ListView):
     model = Repository
     template_name = 'oai_repository_list.html'
@@ -231,8 +234,15 @@ class OaiCollectionHarvestView(DetailView):
                 # for i in data:
                 #     datastring += i
                 # print datastring
-                element.element_data = ' '.join(data)
-                print data
+                """ Data parser for the different elements note we save in json """
+                if key == 'coverage' and data:
+                    #pdb.set_trace()
+                    coordinates = []
+                    coordinates.append(data[0].partition(';')[0].partition('=')[2])
+                    coordinates.append(data[0].partition(';')[2].partition('=')[2])
+                    element.element_data = json.dumps(coordinates)
+                else:
+                    element.element_data = json.dumps(data)
                 element.save()
 
         context['records'] = self.get_object().record_set.all()
