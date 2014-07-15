@@ -34,10 +34,10 @@ urlpatterns = patterns('',
                            CollectionView.as_view(), name='collection'),
                        url(r'^item/(?P<pk>\w+)$',
                            ItemView.as_view(), name='item'),
-                       url(r'^search/language/(?P<query>\w+)$',
-                           LanguageView.as_view(), name='search'),
-                       url(r'^search/author/(?P<query>\w+)$',
-                           AuthorView.as_view(), name='search'),
+                       url(r'^language/(?P<query>\w+)$',
+                           LanguageView.as_view(), name='collection'),
+                       url(r'^author/(?P<query>\w+)$',
+                           AuthorView.as_view(), name='collection'),
 
 
 

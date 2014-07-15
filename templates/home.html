@@ -16,20 +16,35 @@
     		</div>
 		</div>
 	</div>
+
 	<div class="row">
-		<div id="search" class="col-md-12" class="my-inner">
-				<div class="input-group">
-      				<input type="text" class="form-control" placeholder="Search in Kaipuleohone">
-      				<span class="input-group-btn">
-						<button class="btn btn-default" type="button">Search</button>
-      				</span>
-      			</div>
-	    			<!-- <label for="search" class="col-md-2 control-label">Search Kaipuleohone</label>
-	    			<div class="col-md-10">
-	      				<input type="text" class="form-control" id="search" placeholder="">
-	    			</div> -->
-	    		</div>
-  		</div>
+		<!-- <div class="col-md-1"></div> -->
+		<div class="col-md-12">
+			<div class="panel panel-default my-inner">
+				<div class="panel-heading"><h4>Search in Database</h4></div>
+				<ul class="nav nav-pills nav-justified">
+				  <li class="dropdown">
+				  	<select class="form-control" id='query'>
+					    <option value="title">Title</option>
+					    <option value="date">Date</option>
+					    <option value="contributor">Contributor</option>
+					    <option value="coverage">Coverage</option>
+					    <option value="language">Language</option>
+					</select>
+				  </li>
+				  <li class="dropdown">
+				  	<select class="form-control" id='type'>
+					    <option value="is">Is</option>
+					    <option value="contains">Contains</option>
+					</select>
+				  </li>
+				  <li id="filter"><a href="#">Search Kaipuleohone</a></li>
+				  <input id="keyword" type="text" class="form-control" placeholder="Add keyword">
+				</ul>
+			</div>
+		</div>
+	</div>
+
 	</div>
 	<div class="row">
 		<div class="col-md-4">
@@ -50,7 +65,7 @@
 				<h5>Browse by Language</h5>
 				<div class="list-group">
   					{% for language, times in languages.items %}
-  						<a href="search/language/{{ language }}" class="list-group-item">
+  						<a href="language/{{ language }}" class="list-group-item">
     						<span class="badge">{{times}}</span>
     						{{ language }}
   						</a>
@@ -63,7 +78,7 @@
 				<h5>Browse by depositor</h5>
 				<div class="list-group">
   					{% for contributor, times in contributors.items %}
-  						<a href="search/author/{{ contributor }}" class="list-group-item">
+  						<a href="author/{{ contributor }}" class="list-group-item">
     						<span class="badge">{{times}}</span>
     						{{ contributor }}
   						</a>

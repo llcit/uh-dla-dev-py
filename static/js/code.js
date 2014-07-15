@@ -38,15 +38,11 @@ function main() {
 			drawTable(map);
 		//Else print No Geodata Message
 		}else{
-			$( "#map-canvas" ).toggle();
-			$( "#table" ).toggle();
-			$( "#nogeotext" ).toggle();
+			$("#map-canvas" ).toggle();
+			$("#table").toggle();
+			$("#nogeotext").toggle();
 
 		}
-	//Eliminate filter in search view
-	$(".glyphicon-remove").click(funtion(){
-		alert("Click close"):
-	});
 	}
 }
 
