@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView
 
-from oaiharvests.models import Community, Collection, Record
+from oaiharvests.models import Community, Collection, Record, MetadataElement
 
 import json, collections
 
@@ -15,36 +15,47 @@ class HomeView(TemplateView):
 			#Element Queries
 			records = Record.objects.all()
 			#arrays to hold values
-			creator_array = []
-			record_array = []
+			contributor_array = []
+			contributor_count = []
 			language_array = []
+			language_count = []
+			record_array = []
 			#Dictionary to hold values and times
 			language_dict = {}
-			creator_dict = {}
+			contributor_dict = {}
 
-			#Get information form the records metadata
+			#Get languages element
+			records=MetadataElement.objects.filter(element_type='language')
 			for record in records:
-				#Get languages in an array from json string format
-				for language in json.loads(record.get_metadata_item('language')[0].element_data):
+				languages=json.loads(record.element_data)
+				for language in languages:
+					if language not in language_array:
 						language_array.append(language)
-				for creator in json.loads(record.get_metadata_item('contributor')[0].element_data):
-					creator_array.append(creator)
+						language_count.append(len(MetadataElement.objects.filter(element_type='language').filter(element_data__contains=language)))
+			records=MetadataElement.objects.filter(element_type='contributor')
+			for record in records:
+				contributors=json.loads(record.element_data)
+				for contributor in contributors:
+					if contributor not in contributor_array:
+						contributor_array.append(contributor)
+						contributor_count.append(len(MetadataElement.objects.filter(element_type='contributor').filter(element_data__contains=contributor)))
 				#Get the coordinates for objects with dc_coverage
-				if record.get_coordinates()['North'] != 'none':
-					if record.get_coordinates()['North']!="":
-						record_array.append(record.get_coordinates())
+				if record.record.get_coordinates()['North'] != 'none':
+						if record.record.get_coordinates()['North']!="":
+							record_array.append(record.record.get_coordinates())
 			
-			#Create a counter for the languages and creators
-			language_counter=collections.Counter(language_array)
-			creator_counter=collections.Counter(creator_array)
-			#Create a language array without duplicates and save it to dictionary
-			language_array=list(set(language_array))
+			#Create dictionary with language values
+			count=0
 			for element in language_array:
-				language_dict[element]=language_counter[element]
-			#Create a creator array without duplicates and save it to dictionary
-			creator_array=list(set(creator_array))
-			for element in creator_array:
-				creator_dict[element]=creator_counter[element]
+				#pdb.set_trace()
+			 	language_dict[element]=language_count[count]
+			 	count=count+1
+
+			# Create a dictionary with the contributor values
+			count=0
+			for element in contributor_array:
+				contributor_dict[element]=contributor_count[count]
+				count=count+1
 			
 			#Encode output to json format
 			jsonStr=json.dumps(record_array)
@@ -54,7 +65,9 @@ class HomeView(TemplateView):
 			context['collections'] = Collection.objects.all()
 			context['jsonStr']=unicode(jsonStr)
 			context['languages']=language_dict
-			context['creators']=creator_dict
+			#context['languages_count']=language_count
+			#context['contributors']=contributor_array
+			context['contributors']=contributor_dict
 			context['default'] = get_object_or_404(Community, identifier='com_10125_4250') #Community.objects.filter(identifier='com_10125_4250')
 			return context
 
@@ -104,4 +117,24 @@ class ItemView(DetailView):
 	def get_context_data(self, **kwargs):
 			context = super(ItemView, self).get_context_data(**kwargs)
 			context['item_data'] = self.get_object().metadata_items()
+			return context
+
+class LanguageView(TemplateView):
+	template_name = 'search.html'
+
+	def get_context_data(self, **kwargs):
+			Query = self.kwargs['query']
+			context = super(LanguageView, self).get_context_data(**kwargs)
+			#Query the db with the language to search and added to the context
+			context['elements'] = MetadataElement.objects.filter(element_type='language').filter(element_data__contains=Query)
+			return context
+
+class AuthorView(TemplateView):
+	template_name = 'search.html'
+
+	def get_context_data(self, **kwargs):
+			Query = self.kwargs['query']
+			context = super(AuthorView, self).get_context_data(**kwargs)
+			#Query the db with the language to search and added to the context
+			context['elements'] = MetadataElement.objects.filter(element_type='contributor').filter(element_data__contains=Query)
 			return context

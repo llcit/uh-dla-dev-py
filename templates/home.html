@@ -17,12 +17,17 @@
 		</div>
 	</div>
 	<div class="row">
-		<div id="search" class="col-md-12">
-				<div class="form-group">
-	    			<label for="search" class="col-md-2 control-label">Search Kaipuleohone</label>
+		<div id="search" class="col-md-12" class="my-inner">
+				<div class="input-group">
+      				<input type="text" class="form-control" placeholder="Search in Kaipuleohone">
+      				<span class="input-group-btn">
+						<button class="btn btn-default" type="button">Search</button>
+      				</span>
+      			</div>
+	    			<!-- <label for="search" class="col-md-2 control-label">Search Kaipuleohone</label>
 	    			<div class="col-md-10">
 	      				<input type="text" class="form-control" id="search" placeholder="">
-	    			</div>
+	    			</div> -->
 	    		</div>
   		</div>
 	</div>
@@ -45,7 +50,7 @@
 				<h5>Browse by Language</h5>
 				<div class="list-group">
   					{% for language, times in languages.items %}
-  						<a href="#" class="list-group-item">
+  						<a href="search/language/{{ language }}" class="list-group-item">
     						<span class="badge">{{times}}</span>
     						{{ language }}
   						</a>
@@ -57,10 +62,10 @@
 			<div class="my-inner">
 				<h5>Browse by depositor</h5>
 				<div class="list-group">
-  					{% for creator, times in creators.items %}
-  						<a href="#" class="list-group-item">
+  					{% for contributor, times in contributors.items %}
+  						<a href="search/author/{{ contributor }}" class="list-group-item">
     						<span class="badge">{{times}}</span>
-    						{{ creator }}
+    						{{ contributor }}
   						</a>
   					{% endfor %}
 				</div>

@@ -1,8 +1,11 @@
-//agon 2014 Feb
-//Variables Declaration
+//agon 2014 June Java Script to launch map visualizations for elements in Scholarspace 
+
+
+//############ Variables Declaration #####################
 var map;
 var TILE_SIZE = 256;
 var languageMap = [];
+
 //coordinates variables
 var north = [];
 var east = [];
@@ -16,19 +19,37 @@ var circleCenter = [];
 var languageCircle = [];
 var contentString = [];
 var infowindow = [];
-var selected_infowindow = []; 
+var selected_infowindow = [];
 
-// MAIN
-//Initialize Language Map
-//map = google.maps.event.addDomListener(window, 'load', initializeLanguageMap);
+//############# End of Variables declaration #################  
+
+//############# MAIN Function ################################
+
 //load googlecharts for the table
 google.load('visualization', '1', {'packages': ['map','table']});
-google.setOnLoadCallback(googleReady);
 
-//Function to launch googleAPI
-function googleReady() {
-	map = initializeLanguageMap();
-	drawTable(map);
+function main() {
+	google.setOnLoadCallback(googleReady);
+	//Function to launch googleAPI
+	function googleReady() {
+		//Paint map if there are elements with coverage
+		if (json.length>0){
+			map = initializeLanguageMap();
+			drawTable(map);
+		//Else print No Geodata Message
+		}else{
+			$( "#map-canvas" ).toggle();
+			$( "#table" ).toggle();
+			$( "#nogeotext" ).toggle();
+
+		}
+	//Eliminate filter in search view
+	$(".glyphicon-remove").click(funtion(){
+		alert("Click close"):
+	});
+	}
 }
 
-//Eh {gm_accessors_: Object, content: "<p>Hatohobeian(2.9594, 131.8084)</p>", gm_bindings_: Object, position: O, maxWidth: 150…}
+//############## End MAIN function ###############################
+
+$(main);
