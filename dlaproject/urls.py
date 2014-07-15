@@ -36,7 +36,7 @@ urlpatterns = patterns('',
                            ItemView.as_view(), name='item'),
                        url(r'^language/(?P<query>\w+)$',
                            LanguageView.as_view(), name='collection'),
-                       url(r'^author/(?P<query>\w+)$',
+                       url(r'^depositor/(?P<query>\w+)$',
                            AuthorView.as_view(), name='collection'),
 
 

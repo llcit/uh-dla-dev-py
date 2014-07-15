@@ -44,7 +44,6 @@ body {
 
 /******************************** Box Borders **********************************************/
 .row .my-inner {
-  border: 1px solid black;
   padding: 5px;
   margin: 10px 1px 1px 1px;
 }
@@ -64,5 +63,12 @@ body {
     border :solid 2px black;
     padding: 3px;
     border-radius:8px;
+}
+
+#nogeotext{
+    border :solid 2px black;
+    padding: 3px;
+    border-radius:8px;
+    font-size: 20px;
 }
 /******************************** End Map and table **********************************************/
