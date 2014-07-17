@@ -25,25 +25,29 @@
 		<div class="col-md-12">
 			<div class="panel panel-default my-inner">
 				<div class="panel-heading"><h4>Search in Database</h4></div>
-				<ul class="nav nav-pills nav-justified">
-				  <li class="dropdown">
-				  	<select class="form-control" id='query'>
-					    <option value="title">Title</option>
-					    <option value="date">Date</option>
-					    <option value="contributor">Contributor</option>
-					    <option value="coverage">Coverage</option>
-					    <option value="language">Language</option>
-					</select>
-				  </li>
-				  <li class="dropdown">
-				  	<select class="form-control" id='type'>
-					    <option value="is">Is</option>
-					    <option value="contains">Contains</option>
-					</select>
-				  </li>
-				  <li id="filter"><a href="#">Search Kaipuleohone</a></li>
-				  <input id="keyword" type="text" class="form-control" placeholder="Add keyword">
-				</ul>
+				<form action="{% url "search" %}" method="POST">{% csrf_token %}
+					<ul class="nav nav-pills nav-justified">
+					  <li class="dropdown">
+					  	<select name='query' class="form-control" id='query'>
+					  		<option selected="selected" disabled>Metadata Element</option>
+						    <option value="title">Title</option>
+						    <option value="date">Date</option>
+						    <option value="depositor">Depositor</option>
+						    <option value="coverage">Coverage</option>
+						    <option value="language">Language</option>
+						</select>
+					  </li>
+					  <li class="dropdown">
+					  	<select name='type' class="form-control" id='type'>
+					  		<option selected="selected" disabled>Query Type</option>
+						    <option value="is">Is</option>
+						    <option value="contains">Contains</option>
+						</select>
+					  </li>
+					  <li id="filter"><button type="submit" class="btn btn-default">Search Kaipuleohone</button></li>
+					  <input id="key" name="key" type="text" class="form-control" placeholder="Add keyword">
+					</ul>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -60,6 +64,10 @@
     						{{ collection }}
   						</a>
   					{% endfor %}
+  					<ul class="pager">
+					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
+					  <li class="next"><a href="#">Next &rarr;</a></li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -73,6 +81,10 @@
     						{{ language }}
   						</a>
   					{% endfor %}
+  					<ul class="pager">
+					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
+					  <li class="next"><a href="#">Next &rarr;</a></li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -86,6 +98,10 @@
     						{{ contributor }}
   						</a>
   					{% endfor %}
+  					<ul class="pager">
+					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
+					  <li class="next"><a href="#">Next &rarr;</a></li>
+					</ul>
 				</div>
 			</div>
 		</div>

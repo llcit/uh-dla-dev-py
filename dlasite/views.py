@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView
+from django.template import RequestContext
+from django.http import HttpResponse
 
 from oaiharvests.models import Community, Collection, Record, MetadataElement
 
@@ -163,6 +165,31 @@ class AuthorView(TemplateView):
 			context['items'] =items
 			context['object']=Query + ' Depositor'
 			context['jsonStr']=unicode(jsonStr) 
+			return context
+
+class SearchView(ListView):
+	template_name = 'search.html'
+
+	def post(self, request, *args, **kwargs):
+		#arrays to hold values
+		self.items = []
+
+		#Grab POST values from the search query
+		query=self.request.POST.get('query')
+		f=self.request.POST.get('type')
+		key=self.request.POST.get('key')
+
+		self.queryset=MetadataElement.objects.filter(element_type=query).filter(element_data__contains=key)
+
+		for element in MetadataElement.objects.filter(element_type=query).filter(element_data__contains=key):
+				self.items.append(element.record)
+
+		return super(SearchView, self).get(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+			context = super(SearchView, self).get_context_data(**kwargs)
+			context ['items'] = self.items
+			#pdb.set_trace()
 			return context
 
 

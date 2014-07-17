@@ -42,10 +42,14 @@
 			</ul>
 			<div class="my-inner">
 				<ol class="list-group">
-				{% for element in elements %}
-					<li class="list-group-item"><a href= "{{ element.record.get_absolute_url }}" >{{element.record}}</a></li>
+				{% for element in items %}
+					<li class="list-group-item"><a href= "{{ element.get_absolute_url }}" >{{element}}</a></li>
 				{% endfor %}
 				</ol>
+				<ul class="pager">
+				  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
+				  <li class="next"><a href="#">Next &rarr;</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>
