@@ -53,9 +53,9 @@
 	</div>
 
 	</div>
-	<div class="row">
+	<div class="row browse">
 		<div class="col-md-4">
-			<div class="panel panel-default my-inner">
+			<div class="panel panel-default my-inner" id="collection">
 				<div class="panel-heading"><center><h5>Browse by Collection</h5></center></div>
 				<div class="list-group">
 					{% for collection in collections %}
@@ -64,15 +64,15 @@
     						{{ collection }}
   						</a>
   					{% endfor %}
-  					<ul class="pager">
-					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
-					  <li class="next"><a href="#">Next &rarr;</a></li>
-					</ul>
-				</div>
+  				</div>
+  				<ul class="pager">
+				  <li class="previous disabled" id="prev_col"><a class="collection">&larr; Previous</a></li>
+				  <li class="next" id="next_col"><a class="collection">Next &rarr;</a></li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div class="panel panel-default my-inner">
+			<div class="panel panel-default my-inner "  id="language">
 				<div class="panel-heading"><center><h5>Browse by Language</h5></center></div>
 				<div class="list-group">
   					{% for language, times in languages.items %}
@@ -81,15 +81,15 @@
     						{{ language }}
   						</a>
   					{% endfor %}
-  					<ul class="pager">
-					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
-					  <li class="next"><a href="#">Next &rarr;</a></li>
-					</ul>
-				</div>
+  				</div>
+  				<ul class="pager">
+				  <li class="previous disabled" id="prev_lan"><a class="language" >&larr; Previous</a></li>
+				  <li class="next" id="next_lan"><a  class="language" >Next &rarr;</a></li>
+				</ul>
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div class="panel panel-default my-inner">
+			<div class="panel panel-default my-inner"  id="depositor">
 				<div class="panel-heading"><center><h5>Browse by Depositor</h5></center></div>
 				<div class="list-group">
   					{% for contributor, times in contributors.items %}
@@ -98,11 +98,11 @@
     						{{ contributor }}
   						</a>
   					{% endfor %}
-  					<ul class="pager">
-					  <li class="previous disabled"><a href="#">&larr; Previous</a></li>
-					  <li class="next"><a href="#">Next &rarr;</a></li>
-					</ul>
-				</div>
+  				</div>
+  				<ul class="pager">
+					<li class="previous disabled" id="prev_dep"><a class="depositor">&larr; Previous</a></li>
+					<li class="next" id="next_dep"><a class="depositor">Next &rarr;</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>
