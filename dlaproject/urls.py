@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from dlasite.views import HomeView, CommunityView, CollectionListView, CollectionView, ItemView, LanguageView, AuthorView, SearchView
+from dlasite.views import HomeView, CommunityView, CollectionListView, CollectionView, ItemView, SearchView
 from oaiharvests.views import (
     OaiRepositoryListView, 
     OaiRepositoryCreateView, 
@@ -34,10 +34,10 @@ urlpatterns = patterns('',
                            CollectionView.as_view(), name='collection'),
                        url(r'^item/(?P<pk>\w+)$',
                            ItemView.as_view(), name='item'),
-                       url(r'^language/(?P<query>\w+)$',
-                           LanguageView.as_view(), name='collection'),
-                       url(r'^depositor/(?P<query>\w+)$',
-                           AuthorView.as_view(), name='collection'),
+                       #url(r'^language/(?P<query>\w+)$',
+                       #    LanguageView.as_view(), name='collection'),
+                       #url(r'^depositor/(?P<query>\w+)$',
+                       #    AuthorView.as_view(), name='collection'),
                        url(r'^search/$',
                           SearchView.as_view(), name='search'),
 

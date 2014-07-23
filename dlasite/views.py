@@ -105,9 +105,11 @@ class CollectionView(DetailView):
 			#pdb.set_trace()
 			#Encode output to json format
 			jsonStr=json.dumps(record_array)
+			#pdb.set_trace();
 			#Context for the template
 			context = super(CollectionView, self).get_context_data(**kwargs)
 			context['items'] = self.get_object().list_records()
+			context['size'] = len(self.get_object().list_records())
 			context['jsonStr']=unicode(jsonStr)
 			return context
 
@@ -119,52 +121,6 @@ class ItemView(DetailView):
 	def get_context_data(self, **kwargs):
 			context = super(ItemView, self).get_context_data(**kwargs)
 			context['item_data'] = self.get_object().metadata_items()
-			return context
-
-class LanguageView(TemplateView):
-	template_name = 'collection_view.html'
-
-	def get_context_data(self, **kwargs):
-			#arrays to hold values
-			items = []
-			record_array = []
-			Query = self.kwargs['query']
-			for element in MetadataElement.objects.filter(element_type='language').filter(element_data__contains=Query):
-				items.append(element.record)
-				#Get the coordinates for objects with dc_coverage
-				if element.record.get_coordinates()['North'] != 'none':
-					if element.record.get_coordinates()['North']!="":
-						record_array.append(element.record.get_coordinates())
-			#Encode output to json format
-			jsonStr=json.dumps(record_array)
-			context = super(LanguageView, self).get_context_data(**kwargs)
-			#Query the db with the language to search and added to the context
-			context['items'] =items
-			context['object']=Query + ' language'
-			context['jsonStr']=unicode(jsonStr) 
-			return context
-
-class AuthorView(TemplateView):
-	template_name = 'collection_view.html'
-
-	def get_context_data(self, **kwargs):
-			#arrays to hold values
-			items = []
-			record_array = []
-			Query = self.kwargs['query']
-			for element in MetadataElement.objects.filter(element_type='contributor').filter(element_data__contains=Query):
-				items.append(element.record)
-				#Get the coordinates for objects with dc_coverage
-				if element.record.get_coordinates()['North'] != 'none':
-					if element.record.get_coordinates()['North']!="":
-						record_array.append(element.record.get_coordinates())
-			#Encode output to json format
-			jsonStr=json.dumps(record_array)
-			context = super(AuthorView, self).get_context_data(**kwargs)
-			#Query the db with the language to search and added to the context
-			context['items'] =items
-			context['object']=Query + ' Depositor'
-			context['jsonStr']=unicode(jsonStr) 
 			return context
 
 class SearchView(ListView):
