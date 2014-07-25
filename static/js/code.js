@@ -1,4 +1,5 @@
-//agon 2014 June Java Script to launch map visualizations for elements in Scholarspace 
+//agon 2014 June Java Script to launch map visualizations for elements Kaipuleohone Collection
+//This is the Js corresponding with the home page and the maps rendered in the rest of the pages
 
 
 //############  GlOBAL Variables Declaration #####################
@@ -146,6 +147,4 @@ function paginator () {
 			collection.slice(pivot ,collection.length).hide()	
 		}
 	}
-
-
 }

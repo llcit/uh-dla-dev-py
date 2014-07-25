@@ -60,9 +60,9 @@
 				<div class="panel-heading"><center><h5>Browse by Collection</h5></center></div>
 				<div class="list-group">
 					{% for collection in collections %}
-  						<a href="collection/{{ collection.identifier }}" class="list-group-item">
-    						<span class="badge">{{ collection.count_records }}</span>
-    						{{ collection }}
+  						<a href="collection/{{ collection.0.identifier }}" class="list-group-item">
+    						<span class="badge">{{ collection.1 }}</span>
+    						{{ collection.0 }}
   						</a>
   					{% endfor %}
   				</div>
@@ -76,10 +76,10 @@
 			<div class="panel panel-default my-inner "  id="language">
 				<div class="panel-heading"><center><h5>Browse by Language</h5></center></div>
 				<div class="list-group">
-  					{% for language, times in languages.items %}
-  						<a href="language/{{ language }}" class="list-group-item">
-    						<span class="badge">{{times}}</span>
-    						{{ language }}
+  					{% for language in languages %}
+  						<a href="language/{{ language.0 }}" class="list-group-item">
+    						<span class="badge">{{language.1}}</span>
+    						{{ language.0 }}
   						</a>
   					{% endfor %}
   				</div>
@@ -93,10 +93,10 @@
 			<div class="panel panel-default my-inner"  id="depositor">
 				<div class="panel-heading"><center><h5>Browse by Depositor</h5></center></div>
 				<div class="list-group">
-  					{% for contributor, times in contributors.items %}
-  						<a href="depositor/{{ contributor }}" class="list-group-item">
-    						<span class="badge">{{times}}</span>
-    						{{ contributor }}
+  					{% for contributor in contributors %}
+  						<a href="depositor/{{ contributor.0|slugify }}" class="list-group-item">
+    						<span class="badge">{{contributor.1}}</span>
+    						{{ contributor.0 }}
   						</a>
   					{% endfor %}
   				</div>
