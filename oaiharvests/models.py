@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from model_utils.models import TimeStampedModel
 
 import json
+import pdb #pdb.set_trace()
 
 class Repository(TimeStampedModel):
 
@@ -84,18 +85,23 @@ class Record(TimeStampedModel):
         return reverse('item', args=[str(self.id)])
 
     """Function to get the coordinates of the element to plot in map """
-    def get_coordinates(self):
-        position = json.loads(self.get_metadata_item('coverage')[0].element_data)
-        #Has coverage info
-        if position:
-            #Dictionary to hold record element and north and east position
-            #dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":position[0], "East":position[1]}
-            dict = {"Record":self.get_metadata_item('title')[0].element_data,"Language":self.get_metadata_item('language')[0].element_data,"North":position[0], "East":position[1]}
+    def get_coordinates(self,position):
+        #Get languages
+        if json.loads(self.get_metadata_item('language')[0].element_data):
+            language = ""
+            for each in json.loads(self.get_metadata_item('language')[0].element_data):
+                language = language + " " + each
         else:
-            #No coverage info
-            #dict = {"Record":self.get_metadata_item('title')[0].element_data, "Creator":self.get_metadata_item('creator')[0].element_data, "Date":self.get_metadata_item('date')[0].element_data, "Contributor":self.get_metadata_item('contributor')[0].element_data, "Language":self.get_metadata_item('language')[0].element_data, "Description":self.get_metadata_item('description')[0].element_data, "North":"none", "East":"none"}
-            dict = {"Record":self.get_metadata_item('title')[0].element_data,"Language":self.get_metadata_item('language')[0].element_data,"North":"none", "East":"none"}
-        #Dictionary returned from function    
+            language = "No info"
+        #Get contributors
+        if json.loads(self.get_metadata_item('contributor')[0].element_data):
+            contributors = ""
+            for each in json.loads(self.get_metadata_item('contributor')[0].element_data):
+                contributors = contributors + " " + each
+        else:
+            contributors = "No info"
+        dict = {"Record":json.loads(self.get_metadata_item('title')[0].element_data)[0],"Date":json.loads(self.get_metadata_item('date')[0].element_data)[0],"Contributor":contributors,"Language":language,"North":position[0], "East":position[1]}   
+        
         return dict
 
     

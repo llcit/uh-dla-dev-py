@@ -55,7 +55,7 @@
 	<div class="row">
 		<div class="col-md-12 my-inner">
 			<div class="panel panel-default">
-				<div class="panel-heading"><h4>Showing 10 out of {{size}} results for {{object}}</h4></div>
+				<div class="panel-heading searchUI-heading"><h4>Showing 10 records out of {{len}} results for {{object}}</h4></div>
 				<ul class="nav nav-pills nav-justified">
 				  <li class="previous disabled"><a>&larr; Previous</a></li>
 				  <li class="dropdown">
@@ -102,7 +102,7 @@
 							        <ul>
 							 			<li><a href="{{ i.get_absolute_url }}"> Record URL {{forloop.revcounter}} </a></li>
 										{% for j in i.metadata_items %}
-											<li>{{j}}</li>
+											<li>{{j.element_type}}: {{j.element_data}} </li>
 										{% endfor %}
 									</ul>
 							      </div>

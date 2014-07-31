@@ -16,8 +16,6 @@ class HomeView(TemplateView):
 		template_name = 'home.html'
 
 		def get_context_data(self, **kwargs):
-			#Element Queries
-			records = Record.objects.all()
 			#arrays to hold values
 			contributor_array = []
 			contributor_count = []
@@ -32,28 +30,31 @@ class HomeView(TemplateView):
 			language_dict = {}
 			contributor_dict = {}
 			collection_dict = {}
-
-			######################## Getting elements to show in map and language and depositor for Browsing columns ##############
-			#Get languages element
-			records=MetadataElement.objects.filter(element_type='language')
-			for record in records:
-				languages=json.loads(record.element_data)
-				for language in languages:
-					if language not in language_array:
-						language_array.append(language)
-						language_count.append(len(MetadataElement.objects.filter(element_type='language').filter(element_data__icontains=language)))
-			records=MetadataElement.objects.filter(element_type='contributor')
-			for record in records:
-				contributors=json.loads(record.element_data)
-				for contributor in contributors:
-					if contributor not in contributor_array:
-						contributor_array.append(contributor)
-						contributor_count.append(len(MetadataElement.objects.filter(element_type='contributor').filter(element_data__icontains=contributor)))
-				#Get the coordinates for objects with dc_coverage
-				if record.record.get_coordinates()['North'] != 'none':
-						if record.record.get_coordinates()['North']!="":
-							record_array.append(record.record.get_coordinates())
 			
+			#Query and variables for the needed MetadataElments
+			metadata = MetadataElement.objects.all()
+			languages_meta = metadata.filter(element_type='language')
+			contributor_meta = metadata.filter(element_type='contributor')
+			coverage_meta = metadata.filter(element_type='coverage')
+			#Create arrays with the information
+			for metaelement in languages_meta:
+				languages=json.loads(metaelement.element_data)
+			 	for language in languages:
+			 		if language not in language_array:
+			 			language_array.append(language)
+			 			language_count.append(len(languages_meta.filter(element_data__icontains=language)))
+			for metaelement in contributor_meta:
+				contributors=json.loads(metaelement.element_data)
+				for contributor in contributors:
+			 		if contributor not in contributor_array:
+			 			contributor_array.append(contributor)
+			 			contributor_count.append(len(contributor_meta.filter(element_data__icontains=contributor)))
+			for metaelement in coverage_meta:
+				position = json.loads(metaelement.element_data)
+				if position:
+					record_array.append(metaelement.record.get_coordinates(position))
+				
+
 			######################## Organizing elements to show in order from more records to less ##############################
 			#Create dictionary with language values in order to attach number of times with the metadataelement (language,contributors)
 			count=0
@@ -76,7 +77,6 @@ class HomeView(TemplateView):
 
 			######################## Preparing context to render in template ########################################################
 			#Encode output to json format
-			#pdb.set_trace()
 			jsonStr=json.dumps(record_array)
 			context = super(HomeView, self).get_context_data(**kwargs)
 			context['communities'] = Community.objects.all()
@@ -113,14 +113,17 @@ class CollectionView(DetailView):
 			#arrays to hold values
 			record_array = []
 			for record in self.get_object().list_records():
-				#Get the coordinates for objects with dc_coverage
-				if record.get_coordinates()['North'] != 'none':
-					if record.get_coordinates()['North']!="":
-						record_array.append(record.get_coordinates())
+				position=json.loads(self.get_object().list_records()[0].get_metadata_item('coverage')[0].element_data)
+				if position:
+					if position != 'none':
+						record_array.append(record.get_coordinates(position))
+				# #Get the coordinates for objects with dc_coverage
+				# if record.get_coordinates()['North'] != 'none':
+				# 	if record.get_coordinates()['North']!="":
+				# 		record_array.append(record.get_coordinates())
 			#Encode output to json format
 			jsonStr=json.dumps(record_array)
 			#Context for the template
-			pdb.set_trace()
 			context = super(CollectionView, self).get_context_data(**kwargs)
 			context['items'] = self.get_object().list_records()
 			context['size'] = len(self.get_object().list_records())
@@ -148,12 +151,12 @@ class LanguageView(TemplateView):
 			for element in MetadataElement.objects.filter(element_type='language').filter(element_data__icontains=Query):
 				items.append(element.record)
 				#Get the coordinates for objects with dc_coverage
-				if element.record.get_coordinates()['North'] != 'none':
-					if element.record.get_coordinates()['North']!="":
-						record_array.append(element.record.get_coordinates())
+				position=json.loads(element.record.get_metadata_item('coverage')[0].element_data)
+				if position:
+					if position != 'none':
+						record_array.append(element.record.get_coordinates(position))
 			#Encode output to json format
 			jsonStr=json.dumps(record_array)
-			#pdb.set_trace()
 			context = super(LanguageView, self).get_context_data(**kwargs)
 			context['len']=len(items)
 			context['items'] =items
@@ -182,12 +185,12 @@ class ContributorView(TemplateView):
 				for element in MetadataElement.objects.filter(element_type='contributor').filter(element_data__icontains=Query):
 					items.append(element.record)
 					#Get the coordinates for objects with dc_coverage
-					if element.record.get_coordinates()['North'] != 'none':
-						if element.record.get_coordinates()['North']!="":
-							record_array.append(element.record.get_coordinates())
+					position=json.loads(element.record.get_metadata_item('coverage')[0].element_data)
+					if position:
+						if position != 'none':
+							record_array.append(element.record.get_coordinates(position))
 			#Encode output to json format
 			jsonStr=json.dumps(record_array)
-			#pdb.set_trace()
 			context = super(ContributorView, self).get_context_data(**kwargs)
 			#Query the db with the language to search and added to the context
 			context['items'] =items
@@ -204,13 +207,13 @@ class SearchView(ListView):
 		self.items = []
 
 		#Grab POST values from the search query
-		query=self.request.POST.get('query')
-		f=self.request.POST.get('type')
-		key=self.request.POST.get('key')
+		self.query=self.request.POST.get('query')
+		f=self.request.POST.get('type') #for contains or is maybe I elimate it
+		self.key=self.request.POST.get('key')
 
-		self.queryset=MetadataElement.objects.filter(element_type=query).filter(element_data__icontains=key)
+		self.queryset=MetadataElement.objects.filter(element_type=self.query).filter(element_data__icontains=self.key)
 
-		for element in MetadataElement.objects.filter(element_type=query).filter(element_data__icontains=key):
+		for element in MetadataElement.objects.filter(element_type=self.query).filter(element_data__icontains=self.key):
 				self.items.append(element.record)
 
 		return super(SearchView, self).get(request, *args, **kwargs)
@@ -218,7 +221,10 @@ class SearchView(ListView):
 	def get_context_data(self, **kwargs):
 			context = super(SearchView, self).get_context_data(**kwargs)
 			context ['items'] = self.items
-			#pdb.set_trace()
+			context['len'] = len(self.items)
+			context['query'] = self.query
+			context['key'] = self.key
+			# pdb.set_trace()
 			return context
 
 

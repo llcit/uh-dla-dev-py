@@ -2,7 +2,8 @@
 //This is the Js corresponding with the search page and collection page results box
 
 //DOM Variables
-records = $(".searchBox").children();
+var records = $(".searchBox").children();
+var search_element = $(".searchUI-heading").text().split('for')[1];
 
 //variables
 var pivot = 10;
@@ -51,6 +52,8 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 	//Pivots
 	$("#pivot10").click(function(){
 		pivot = 10;
+		if(records.length<pivot) elements = records.length; 
+		else elements = pivot;
 		num_results = 10;
 		records.slice(0,pivot).show();
 		records.slice(pivot,records.length).hide();
@@ -59,11 +62,14 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 		if (pages > actual_page) {
 			$(".next").removeClass("disabled");
 		}
+		$(".searchUI-heading h4").text("Showing " + elements + " records out of " + records.length + " results for " + search_element)
 		$(".previous").addClass("disabled");
 		boxPaginator(records,pivot,actualPage,num_results);
 	});
 	$("#pivot20").click(function(){
 		pivot = 20;
+		if(records.length<pivot) elements = records.length; 
+		else elements = pivot;
 		num_results = 20;
 		records.slice(0,pivot.length).show();
 		records.slice(pivot,records.length).hide();
@@ -73,11 +79,14 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 			$(".next").removeClass("disabled");
 		}
 		$(".previous").addClass("disabled");
+		$(".searchUI-heading h4").text("Showing " + elements + " records out of " + records.length + " results for " + search_element)
 		boxPaginator(records,pivot,actualPage,num_results);
 	
 	});
 	$("#pivot30").click(function(){
 		pivot = 30;
+		if(records.length<pivot) elements = records.length; 
+		else elements = pivot;
 		num_results = 30;
 		records.slice(0,pivot).show();
 		records.slice(pivot,records.length).hide();
@@ -87,11 +96,14 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 			$(".next").removeClass("disabled");
 		}
 		$(".previous").addClass("disabled");
+		$(".searchUI-heading h4").text("Showing " + elements + " records out of " + records.length + " results for " + search_element)
 		boxPaginator(records,pivot,actualPage,num_results);
 		
 	});
 	$("#pivot50").click(function(){
 		pivot = 50;
+		if(records.length<pivot) elements = records.length; 
+		else elements = pivot;
 		num_results = 50;
 		records.slice(0,pivot).show();
 		records.slice(pivot,records.length).hide();
@@ -101,6 +113,7 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 			$(".next").removeClass("disabled");
 		}
 		$(".previous").addClass("disabled");
+		$(".searchUI-heading h4").text("Showing " + elements + " records out of " + records.length + " results for " + search_element)
 		boxPaginator(records,pivot,actualPage,num_results);
 
 	});
@@ -110,6 +123,7 @@ function boxPaginator (records,pivot,actual_page,num_results) {
 		pages = 1;
 		actual_page =1;
 		$(".next").addClass("disabled");
+		$(".searchUI-heading h4").text("Showing All the records out of " + records.length + " results for " + search_element)
 		$(".previous").addClass("disabled");
 	});
 
