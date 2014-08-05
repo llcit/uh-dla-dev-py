@@ -75,6 +75,16 @@ class Record(TimeStampedModel):
     def metadata_items(self):
         return self.metadataelement_set.all()
 
+    def metadata_items_json(self):
+        json_metadata = {}
+        elements = self.metadataelement_set.all()
+        for metadata in elements:
+            if json.loads(metadata.element_data):
+                json_metadata[metadata.element_type]=(json.loads(metadata.element_data)[0])
+            # else:
+            #     json_metadata[metadata.element_type]= []
+        return json_metadata
+
     def get_metadata_item(self, e_type):
         return self.metadata_items().filter(element_type=e_type)
 

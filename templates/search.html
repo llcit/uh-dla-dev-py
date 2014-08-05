@@ -53,8 +53,8 @@
 							      <div class="panel-body">
 							        <ul>
 							 			<li><a href="{{ i.get_absolute_url }}"> Record URL {{forloop.revcounter}} </a></li>
-										{% for j in i.metadata_items %}
-											<li>{{j}}</li>
+										{% for key, values in i.metadata_items_json.items %}
+											<li>{{key}}: {{values}} </li>
 										{% endfor %}
 									</ul>
 							      </div>
