@@ -208,7 +208,6 @@ class SearchView(ListView):
 
 		#Grab POST values from the search query
 		self.query=self.request.POST.get('query')
-		f=self.request.POST.get('type') #for contains or is maybe I elimate it
 		self.key=self.request.POST.get('key')
 
 		self.queryset=MetadataElement.objects.filter(element_type=self.query).filter(element_data__icontains=self.key)
