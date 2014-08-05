@@ -100,9 +100,10 @@
 							    <div id="collapseOne{{forloop.counter0}}" class="panel-collapse collapse">
 							      <div class="panel-body">
 							        <ul>
-							 			<li><a href="{{ i.get_absolute_url }}"> Record URL </a></li>
+							 			<li><a href="{{ i.get_absolute_url }}"> <b> Record URL </b> <hr> </a></li>
 										{% for key, values in i.metadata_items_json.items %}
-											<li>{{key}}: {{values}} </li>
+											<li><b>{{key.title}}: </b> {{values}} </li>
+											<hr>
 										{% endfor %}
 									</ul>
 							      </div>
