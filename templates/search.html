@@ -1,5 +1,7 @@
 <!-- search.html -->
 {% extends 'base.html' %}
+{% load staticfiles %}
+
 
 {% block page_header %}<!--<small>{{ object }}</small>-->{% endblock page_header %}
 
@@ -107,5 +109,5 @@
 
 {% block js_include %}
     <!--Internal js files-->
-    <script src="../../static/js/search.js"></script>
+     <script src="{% static 'js/search.js' %}"></script>
 {% endblock js_include %}

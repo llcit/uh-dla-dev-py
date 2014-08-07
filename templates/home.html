@@ -1,5 +1,7 @@
 <!-- index.html -->
 {% extends 'base.html' %}
+{% load staticfiles %}
+
 
 {% block page_header %}{% endblock page_header %}
 
@@ -128,7 +130,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <!--Internal js files-->
-    <script src="static/js/map.js"></script>
-    <script src="static/js/table.js"></script>
-    <script src="static/js/code.js"></script>
+    <script src="{% static 'js/map.js' %}"></script>
+    <script src="{% static 'js/table.js' %}"></script>
+    <script src="{% static 'js/code.js' %}"></script>
 {% endblock js_include %}
