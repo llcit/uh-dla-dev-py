@@ -1,10 +1,13 @@
 # utils.py
 
-""" OAIUtils : A set of utility functions that handle requests and format responses for OAI provider. """
+""" 
+OAIUtils : A set of utility functions that handle requests and format responses for OAI provider. 
 
-from oaipmh.client import Client
+http://www.openarchives.org/OAI/openarchivesprotocol.html
+"""
+
+from oaipmh.client import BaseClient, Client
 from oaipmh.metadata import MetadataRegistry, oai_dc_reader
-
 
 class OAIUtils(object):
     repositories = []
@@ -54,6 +57,7 @@ class OAIUtils(object):
 
     def list_oai_collections(self, community):
         """ Retrieve the header data for each record in the current community repo """
+
         try:
             registry = MetadataRegistry()
             registry.registerReader('oai_dc', oai_dc_reader)
@@ -61,24 +65,25 @@ class OAIUtils(object):
             records = client.listIdentifiers(
                 metadataPrefix='oai_dc', set=community.identifier)
         except:
-            community_collections = []
+            community_collections = set()
             return
 
+
         """ Filter records to build list of collections in the community set """
-        repository_collections = []
+        community_collections = set()
         for i in records:
             for j in i.setSpec():
                 if j[:3] == 'col':
-                    repository_collections.append(j)
-
-        community_collections = set(repository_collections)
-
+                    community_collections.add(j)
+    
+        print len(community_collections)
         """ Build collection tuples (identifier, name) """
-        self.collections = []
-        sets = client.listSets()
-        for i in sets:
-            if i[0] in community_collections:
-                set_data = []
-                set_data.append(i[0])  # Store identifier
-                set_data.append(i[1])  # Store human readable name
-                self.collections.append(set_data)
+        for i in community_collections:
+            # print i
+            # print community_collections
+            
+            set_data = []
+            set_data.append(i)  # Store identifier
+            set_data.append('Collection: %s'%i)  # Store human readable name
+            # print set_data
+            self.collections.append(set_data)

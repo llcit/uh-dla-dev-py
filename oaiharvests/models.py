@@ -59,7 +59,7 @@ class Collection(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-       return reverse('oai_collection', args=[str(self.identifier)])
+       return reverse('collection', args=[str(self.identifier)])
 
 class Record(TimeStampedModel):
 
@@ -81,38 +81,59 @@ class Record(TimeStampedModel):
         for metadata in elements:
             if json.loads(metadata.element_data):
                 json_metadata[metadata.element_type]=(json.loads(metadata.element_data)[0])
-            # else:
-            #     json_metadata[metadata.element_type]= []
+        
         return json_metadata
 
     def get_metadata_item(self, e_type):
         return self.metadata_items().filter(element_type=e_type)
 
+    def to_dict(self):
+        record_dict = {}
+        elements = self.metadataelement_set.all().order_by('element_type')
+        for e in elements:
+            record_dict[e.element_type] = json.loads(e.element_data)
+
+        return record_dict
+
     def __unicode__(self):
-        return '%s - %s'%(self.hdr_setSpec, self.get_metadata_item('title')[0].element_data)
+        title = json.loads(self.get_metadata_item('title')[0].element_data)[0]
+        return '%s - %s'%(self.hdr_setSpec, title)
 
     def get_absolute_url(self):
         return reverse('item', args=[str(self.id)])
 
     """Function to get the coordinates of the element to plot in map """
-    def get_coordinates(self,position):
+    def get_coordinates(self, json_position):
         #Get languages
-        if json.loads(self.get_metadata_item('language')[0].element_data):
+        json_list = json.loads(self.get_metadata_item('language')[0].element_data)
+        
+        if json_list:
             language = ""
-            for each in json.loads(self.get_metadata_item('language')[0].element_data):
+            for each in json_list:
                 language = language + " " + each
         else:
             language = "No info"
+        
         #Get contributors
-        if json.loads(self.get_metadata_item('contributor')[0].element_data):
+        json_list = json.loads(self.get_metadata_item('contributor')[0].element_data)
+        
+        if json_list:
             contributors = ""
-            for each in json.loads(self.get_metadata_item('contributor')[0].element_data):
+            for each in json_list:
                 contributors = contributors + " " + each
         else:
             contributors = "No info"
-        dict = {"Record":json.loads(self.get_metadata_item('title')[0].element_data)[0],"Date":json.loads(self.get_metadata_item('date')[0].element_data)[0],"Contributor":contributors,"Language":language,"North":position[0], "East":position[1]}   
         
-        return dict
+        coords = {
+            "Record":json.loads(self.get_metadata_item('title')[0].element_data)[0],
+            "Date":json.loads(self.get_metadata_item('date')[0].element_data)[0],
+            "Contributor":contributors,
+            "Language":language,
+            "North":json_position[0], 
+            "East":json_position[1]
+        }   
+        
+        return coords
 
     
 

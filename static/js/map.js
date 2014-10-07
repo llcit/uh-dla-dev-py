@@ -24,9 +24,10 @@ function initializeLanguageMap() {
 	if (typeof circleCenter[0] != 'undefined') var mapcenter = new google.maps.LatLng(circleCenter[0].k, circleCenter[0].B);
 	else var mapcenter = new google.maps.LatLng(0, 0);
 	var mapOptions = {
-	zoom: 3,
-	minZoom:1,
-	center: mapcenter
+		zoom: 1,
+		minZoom:1,
+		center: mapcenter,
+		mapTypeId: google.maps.MapTypeId.SATELLITE
 	};
 
 	var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);

@@ -8,19 +8,17 @@
 {% block content %}
 	
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-12">
 			<div class="panel panel-default my-inner">
 				<div class="panel-heading"><center><h5>WELCOME TO KAIPULEOHONE</h5></center></div>
 				<p>Kaipuleohone is the University of Hawai'i's digital ethnographic archive for audio and video recordings as well as notes, dictionaries, transcriptions, and other materials related to small and endangered languages.<br> <br>
 				Kaipuleohone means a 'gourd of sweet words' and represents the notion of a collection of language material that would otherwise be unlocatable in personal collections</p>
 			</div>
 		</div>
-		<div class="col-md-6">
-			<div class="my-inner">
-				<div id="map-canvas"></div>
-    			<div id="table"></div>
-    		</div>
-		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6"><div id="map-canvas"></div></div>
+		<div class="col-md-6"><div id="table"></div></div>	
 	</div>
 
 	<div class="row">
@@ -62,9 +60,9 @@
 				<div class="panel-heading"><center><h5>Browse by Collection</h5></center></div>
 				<div class="list-group">
 					{% for collection in collections %}
-  						<a href="dla/collection/{{ collection.0.identifier }}" class="list-group-item">
-    						<span class="badge">{{ collection.1 }}</span>
-    						{{ collection.0 }}
+  						<a href="{{ collection.get_absolute_url }}" class="list-group-item">
+    						<span class="badge">{{ collection.count_records }}</span>
+    						{{ collection }}
   						</a>
   					{% endfor %}
   				</div>
@@ -79,8 +77,8 @@
 				<div class="panel-heading"><center><h5>Browse by Language</h5></center></div>
 				<div class="list-group">
   					{% for language in languages %}
-  						<a href="dla/language/{{ language.0 }}" class="list-group-item">
-    						<span class="badge">{{language.1}}</span>
+  						<a href="{% url 'language' language.0 %}" class="list-group-item">
+    						<span class="badge">{{language.1 }}</span>
     						{{ language.0 }}
   						</a>
   					{% endfor %}
@@ -96,7 +94,7 @@
 				<div class="panel-heading"><center><h5>Browse by Depositor</h5></center></div>
 				<div class="list-group">
   					{% for contributor in contributors %}
-  						<a href="dla/depositor/{{ contributor.0|slugify }}" class="list-group-item">
+  						<a href="{% url 'contributor' contributor.0|slugify %}" class="list-group-item">
     						<span class="badge">{{contributor.1}}</span>
     						{{ contributor.0 }}
   						</a>
@@ -122,6 +120,7 @@
 	<script type="text/javascript">
 		//Get the coordinates info and data from the records inside the DOM
         var json = {{ jsonStr|safe }};
+        console.log(json);
     </script>
 {% endblock js_script %}
 

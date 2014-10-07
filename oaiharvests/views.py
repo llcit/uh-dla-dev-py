@@ -20,9 +20,6 @@ from .models import Repository, Community, Collection, MetadataElement, Record
 from .forms import CreateRepositoryForm, CreateCommunityForm, CreateCollectionForm
 from .utils import OAIUtils
 
-#For debugging purposes
-import pdb
-
 class OaiRepositoryListView(ListView):
     model = Repository
     template_name = 'oai_repository_list.html'
@@ -162,6 +159,7 @@ class OaiCollectionCreateView(DetailView):
         
         # self.oai = OAIUtils()
         self.oai.list_oai_collections(self.get_object())
+        # print "collections found: %s" % self.oai.collections
         form = CreateCollectionForm(community=self.get_object(), collections_list=self.oai.collections)
         context['form'] = form
         context['view_type'] = 'add new collection'

@@ -23,10 +23,10 @@ function drawTable(map) {
 
 	var table_options = {
 		showRowNumber: true,
-		height: '350px',
-		width: '600px',
+		height: '480px',
+		width: '620px',
 		page: 'enable',
-		pageSize: 20
+		pageSize: 10
 	}
 
   	var table = new google.visualization.Table(document.getElementById('table'));

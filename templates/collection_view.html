@@ -8,17 +8,12 @@
 {% block content %}	
 
 	<div class="row">
-		<div class="col-md-6">
-			<div class="panel panel-default my-inner">
-				<div class="panel-heading"><center><h5>{{object}}</h5></center></div>
-					" This is a test to show the info for the collection. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-				</div>
-		</div>
+		<div class="col-md-12"></div>
 		<div class="col-md-6">
 			<div class="my-inner">
 				<div id="map-canvas"></div>
     			<div id="table"></div>
-    			<p style="display:none" id="nogeotext">NO GEO DATA AVAILABLE FOR THIS COLLECTION OF RECORDS</p>
+    			<p style="display:none">No map data available.</p>
     		</div>
 		</div>
 	</div>
@@ -103,8 +98,12 @@
 							      <div class="panel-body">
 							        <ul>
 							 			<li><a href="{{ i.get_absolute_url }}"> <b> Record URL </b> <hr> </a></li>
-										{% for key, values in i.metadata_items_json.items %}
-											<li><b>{{key.title}}: </b> {{values}} </li>
+							 			
+										{% for key, values in i.to_dict.items %}
+											<li><b>{{ key }}: </b> 
+												{%for j in values %}
+													<span> {{ j|urlize }}{% if not forloop.last %};{% endif %} </span>
+												{% endfor %}</li>
 											<hr>
 										{% endfor %}
 									</ul>

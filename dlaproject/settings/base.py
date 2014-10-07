@@ -25,9 +25,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'oaiharvests',
-    # 'dlasite', IN DEVELOPMENT
-
-    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -70,4 +67,4 @@ STATICFILES_DIRS = (
 
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = PROJECT_DIR.child('templates')
+TEMPLATE_DIRS = (PROJECT_DIR.child('templates'),)
