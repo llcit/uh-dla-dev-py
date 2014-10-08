@@ -38,4 +38,7 @@ Thumbs.db
 
 # Project specific exclusions #
 ############
+prod.py
+dlasiteprod.py
+wsgi-prod.py
 
