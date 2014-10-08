@@ -10,7 +10,7 @@
   <title>{% block page_title %}Harvest Time{% endblock page_title %}</title>
 
   <!-- Bootstrap -->
-  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css'%}">
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
@@ -71,10 +71,11 @@
   </div>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="{% static 'js/jquery.js' %}"></script>
+  <script src="https://code.jquery.com/jquery.js"></script>
   
   <!-- Include all site-wide javascript below -->
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+
 
   <!-- Placeholder for page level javascript includes -->
   {% block js_include %} {% endblock js_include %}
