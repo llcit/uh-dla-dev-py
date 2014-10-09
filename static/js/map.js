@@ -23,6 +23,8 @@ function initializeLanguageMap() {
 
 	if (typeof circleCenter[0] != 'undefined') var mapcenter = new google.maps.LatLng(circleCenter[0].k, circleCenter[0].B);
 	else var mapcenter = new google.maps.LatLng(0, 0);
+
+	
 	var mapOptions = {
 		zoom: 1,
 		minZoom:1,
@@ -31,6 +33,7 @@ function initializeLanguageMap() {
 	};
 
 	var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
 
 	for (var i = 0; i<circleCenter.length; i++) {
 
@@ -44,6 +47,14 @@ function initializeLanguageMap() {
 		  center: circleCenter[i],
 		  radius: 10000
 		};
+
+		// Add the marker for this language to the map.
+		markers[i] = new google.maps.Marker({
+		      position: circleCenter[i],
+		      map: map,
+		      title: ''
+		});
+
 		// Add the circle for this language to the map.
 		languageCircle [i] = new google.maps.Circle(languageOptions);
 
@@ -72,6 +83,8 @@ function initializeLanguageMap() {
 		infowindow.push(new google.maps.InfoWindow(infowindowOptions));
 	}
 
+
+
 	for (x in languageCircle) {
 		google.maps.event.addListener(languageCircle[x], 'click', makeMapListener(infowindow[x], map));
 	}
@@ -80,6 +93,7 @@ function initializeLanguageMap() {
   		return function() { window.open(map) };
 	}
 
+	
 	return map;
 }
 

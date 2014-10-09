@@ -8,6 +8,10 @@ body {
   padding-top: 30px;
 }
 
+#footer {
+  text-align: center;
+}
+
 /******************************** Box Borders **********************************************/
 .row .my-inner {
   padding: 5px;
@@ -23,17 +27,20 @@ body {
 
 /******************************** Map and Table **********************************************/
 #map-canvas{
-    text-align: center;
+    /*text-align: center;*/
     background-color: lightgrey;
     float: right;
-    width: 600px;
+    /*margin: 0 auto;*/
+    width: 100%;
     height: 480px;
     /*border :solid 2px black;*/
     /*padding: 3px;*/
     /*border-radius:8px;*/
 }
 #table{
-  float: left;
+  /*float: left;*/
+  margin: 0 auto;
+  width: 600px;
 }
 
 #nogeotext{

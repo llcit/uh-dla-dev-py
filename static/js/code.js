@@ -18,6 +18,7 @@ var languagesCenterNoDuplicates = [];
 //Variables to paint the languages as circles in the map (center and the actual circles)
 var circleCenter = []; 
 var languageCircle = [];
+var markers = [];
 var contentString = [];
 var infowindow = [];
 var selected_infowindow = [];
