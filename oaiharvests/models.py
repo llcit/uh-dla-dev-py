@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 
 from model_utils.models import TimeStampedModel
 
-import json
+import json, operator
 import pdb #pdb.set_trace()
 
 class Repository(TimeStampedModel):
@@ -87,13 +87,32 @@ class Record(TimeStampedModel):
     def get_metadata_item(self, e_type):
         return self.metadata_items().filter(element_type=e_type)
 
-    def to_dict(self):
+    """Sort record dictionary by key"""
+    def sort_metadata_dict(self, record_dict):
+        return sorted(record_dict.items(), key=operator.itemgetter(0))
+
+    def as_dict(self):
         record_dict = {}
         elements = self.metadataelement_set.all().order_by('element_type')
         for e in elements:
-            record_dict[e.element_type] = json.loads(e.element_data)
-
+            data = json.loads(e.element_data)
+            if e.element_type == 'coverage':                
+                record_dict['coverage_lat'] = [data[0]]
+                record_dict['coverage_lng'] = [data[1]]
+            else:
+                record_dict[e.element_type] = data
+        record_dict['collection'] = [self.hdr_setSpec]
+        record_dict['site_url'] = [self.get_absolute_url()]
         return record_dict
+
+    """Function to get the coordinates of the element to plot in map """
+    def get_coordinates(self, json_position):
+        coords = {
+            "lat":json_position[0], 
+            "lng":json_position[1]
+        }
+        print coords
+        return coords
 
     def __unicode__(self):
         title = json.loads(self.get_metadata_item('title')[0].element_data)[0]
@@ -101,40 +120,6 @@ class Record(TimeStampedModel):
 
     def get_absolute_url(self):
         return reverse('item', args=[str(self.id)])
-
-    """Function to get the coordinates of the element to plot in map """
-    def get_coordinates(self, json_position):
-        #Get languages
-        json_list = json.loads(self.get_metadata_item('language')[0].element_data)
-        
-        if json_list:
-            language = ""
-            for each in json_list:
-                language = language + " " + each
-        else:
-            language = "No info"
-        
-        #Get contributors
-        json_list = json.loads(self.get_metadata_item('contributor')[0].element_data)
-        
-        if json_list:
-            contributors = ""
-            for each in json_list:
-                contributors = contributors + " " + each
-        else:
-            contributors = "No info"
-        
-        coords = {
-            "Record":json.loads(self.get_metadata_item('title')[0].element_data)[0],
-            "Date":json.loads(self.get_metadata_item('date')[0].element_data)[0],
-            "Contributor":contributors,
-            "Language":language,
-            "North":json_position[0], 
-            "East":json_position[1]
-        }   
-        
-        return coords
-
     
 
 class MetadataElement(models.Model):

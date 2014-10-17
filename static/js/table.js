@@ -7,8 +7,8 @@ function drawTable(map) {
     // data.addColumn('string', 'Contributor');
     data.addColumn('string', 'Language');
     // data.addColumn('string', 'Description');
-    // data.addColumn('string', 'North');
-    // data.addColumn('string', 'East');
+    data.addColumn('string', 'North');
+    data.addColumn('string', 'East');
 	  data.addRows(json.length);
   	for (var i=0; i<json.length; i++){
   	  data.setCell(i, 0, json[i].Contributor);
@@ -17,8 +17,8 @@ function drawTable(map) {
       // data.setCell(i, 2, json[i].Contributor);
       data.setCell(i, 2, json[i].Language);
       // data.setCell(i, 5, json[i].Description);
-      // data.setCell(i, 4, json[i].North);
-      // data.setCell(i, 5, json[i].East);
+      data.setCell(i, 3, json[i].North);
+      data.setCell(i, 4, json[i].East);
 	  }
 
 	var table_options = {

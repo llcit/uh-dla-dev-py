@@ -41,7 +41,7 @@ var selected_infowindow = [];
 //############# MAIN Function ################################
 
 //load googlecharts for the table
-google.load('visualization', '1', {'packages': ['map','table']});
+// google.load('visualization', '1', {'packages': ['map','table']});
 
 function main() {
 	google.setOnLoadCallback(googleReady);
@@ -50,16 +50,17 @@ function main() {
 		//Paint map if there are elements with coverage
 		if (json.length>0){
 			map = initializeLanguageMap();
-			drawTable(map);
+			// drawTable(map);
 		//Else print No Geodata Message
 		}else{
 			$("#map-canvas" ).toggle();
-			$("#table").toggle();
+			// $("#table").toggle();
 			$("#nogeotext").toggle();
 
 		}
-	paginator();
+	
 	}
+	paginator();
 }
 
 //############## End MAIN function ###############################
@@ -149,3 +150,29 @@ function paginator () {
 		}
 	}
 }
+
+jQuery(function($) {
+    $(".mapped_record").click(function () {
+    	var north = $(this).children(".north").val();
+    	var east = $(this).children(".east").val();
+    	console.log(east + ':' + north);
+    	display_text = '<p>' + $(this).children(".title").val() + ' ' + $(this).children(".collection").val()+ '</p><p> <b>Language:</b> ' + $(this).children(".language").val() + '<br> <b>Coordinates:</b> ' + north + ', ' + east + '</p>';
+    	center = new google.maps.LatLng(east, north);
+		var infowindowOptions = {
+			content: display_text,
+		  	position: center,
+		   	maxWidth: 150
+		}
+		infowindow = new google.maps.InfoWindow(infowindowOptions);
+    	infowindow.open(map);
+		
+        // $("#sitemap_panel").toggle( "blind", "down", 700 );
+        // $("#sitemap_btn_toggle").toggleClass("fa-caret-up");
+    });
+
+    $(document).ready(function() {
+
+    });
+})
+
+

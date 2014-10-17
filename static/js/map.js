@@ -1,28 +1,13 @@
 function initializeLanguageMap() {
   	//Save languages center coordinates to plot into the map
 	for (var i = 0; i<json.length; ++i) {
-		extra_data[i] = json[i].Language
-		east[i] = json[i].East;
-		north[i] = json[i].North;
-		languageCenter[i] = north[i] + ' ' + east[i]
-	}
-	//eliminate languages in the same place and their extra data
-	languagesCenterNoDuplicates = languageCenter.filter(function(elem, pos) {
-    	return languageCenter.indexOf(elem) == pos;
-	})
-
-	extra_dataNoDuplates = extra_data.filter(function(elem, pos) {
-    	return extra_data.indexOf(elem) == pos;
-    })
-
-	//Transform the values into coordenates
-	for(var i=0; i<languagesCenterNoDuplicates.length; ++i){
-		var temporary = languagesCenterNoDuplicates[i].split(" ")
-		circleCenter[i] = new google.maps.LatLng(temporary[0],temporary[1])
+		circleCenter[i] = new google.maps.LatLng(json[i].east, json[i].north)
 	}
 
-	if (typeof circleCenter[0] != 'undefined') var mapcenter = new google.maps.LatLng(circleCenter[0].k, circleCenter[0].B);
-	else var mapcenter = new google.maps.LatLng(0, 0);
+	if (typeof circleCenter[0] != 'undefined') 
+		var mapcenter = new google.maps.LatLng(circleCenter[0].k, circleCenter[0].B);
+	else 
+		var mapcenter = new google.maps.LatLng(0, 0);
 
 	
 	var mapOptions = {
@@ -37,61 +22,47 @@ function initializeLanguageMap() {
 
 	for (var i = 0; i<circleCenter.length; i++) {
 
-		var languageOptions = {
-		  strokeColor: '#FF0000',
-		  strokeOpacity: 0.8,
-		  strokeWeight: 2,
-		  fillColor: '#FF0000',
-		  fillOpacity: 0.35,
-		  map: map,
-		  center: circleCenter[i],
-		  radius: 10000
-		};
+		// var languageOptions = {
+		//   strokeColor: '#fff',
+		//   strokeOpacity: 0.0,
+		//   strokeWeight: 1,
+		//   fillColor: '#fff',
+		//   fillOpacity: 0.1,
+		//   map: map,
+		//   center: circleCenter[i],
+		//   radius: 1000
+		// };
+
+		// // Add the circle for this language to the map.
+		// languageCircle [i] = new google.maps.Circle(languageOptions);
+
+		// //Text to display when hovering languages on map
+		// text = "";
+		// contentString.push('<p> <b>Language:</b> ' + languageCenter[i] + '<br> <b>Coordinates:</b> ' + circleCenter[i] + '</p>')
 
 		// Add the marker for this language to the map.
-		markers[i] = new google.maps.Marker({
+		var marker = new google.maps.Marker({
 		      position: circleCenter[i],
 		      map: map,
-		      title: ''
+		      // title: 'Languages: ' + languageCenter[i]
 		});
 
-		// Add the circle for this language to the map.
-		languageCircle [i] = new google.maps.Circle(languageOptions);
-
-		//Text to display when hovering languages on map
-		text = "";
-		contentString.push('<p> <b>Language:</b> ' + extra_dataNoDuplates[i] + '<br> <b>Coordinates:</b> ' + circleCenter[i] + '</p>')
-		
-		// Example to Format the Text 
-		//var contentString = '<div id="content">'+
-		  //  '<div id="siteNotice">'+
-		    //'</div>'+
-		    //'<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
-		    //'<div id="bodyContent">'+
-		    //'<p><b>language 1</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-		    //'language  bla bla</p>'+
-		    //'<p>Attribution: Uluru, <a href="http://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194"></p>'+
-		    //'http://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-		    //'</div>'+
-		    //'</div>';
-
-		var infowindowOptions = {
-			content: contentString[i],
-		  	position: languageCircle[i].center,
-		   	maxWidth: 150
-		}
-		infowindow.push(new google.maps.InfoWindow(infowindowOptions));
+		google.maps.event.addListener(marker, 'click', function() {
+			map.setZoom(12);
+			map.setCenter(this.getPosition());
+			console.log(this);
+		});
 	}
 
 
 
-	for (x in languageCircle) {
-		google.maps.event.addListener(languageCircle[x], 'click', makeMapListener(infowindow[x], map));
-	}
+	// for (x in languageCircle) {
+	// 	google.maps.event.addListener(languageCircle[x], 'click', makeMapListener(infowindow[x], map));
+	// }
 
-	function makeMapListener(window, map) {
-  		return function() { window.open(map) };
-	}
+	// function makeMapListener(window, map) {
+ //  		return function() { window.open(map) };
+	// }
 
 	
 	return map;

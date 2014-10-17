@@ -4,8 +4,7 @@ from django.template import RequestContext
 from django.http import HttpResponse
 #For making complex queries
 from django.db.models import Q, Count
-from django.db.models import Count
-
+# from sets import Set
 from oaiharvests.models import Community, Collection, Record, MetadataElement
 
 import json, collections, operator #operator is used for sorting
@@ -19,23 +18,22 @@ class HomeView(TemplateView):
             contributor_count = []
             language_array = []
             language_count = []
-            record_array = []
+            mapped_records = []
             contributor_url = []
-            sorted_language = []
-            sorted_contributor = []
-            sorted_collections = []
             
             #Dictionary to hold values and times
             language_dict = {}
             contributor_dict = {}
-            collection_dict = {}
             
             #Query and variables for the needed MetadataElments
             metadata = MetadataElement.objects.all()
             
             languages_meta = metadata.filter(element_type='language')
             contributor_meta = metadata.filter(element_type='contributor')
-            coverage_meta = metadata.filter(element_type='coverage')
+
+            # Only retrieve metadata items that have data values set for coverage
+            coverage_meta = metadata.filter(element_type='coverage').exclude(element_data=[])
+            
             
             #Create dicts with frequency counts
             language_dict = {}
@@ -56,26 +54,26 @@ class HomeView(TemplateView):
                     else:
                         contributor_dict[contributor] = 1
             
+            unique_mapped_coords = {} # unique coords in mapped records 
+            unique_mapped_languages = set() # unique languages in mapped records         
             for metaelement in coverage_meta:
-                position = json.loads(metaelement.element_data)
-                
-                if position:                 
-                    record_array.append(metaelement.record.get_coordinates(position))
+                position = json.loads(metaelement.element_data)              
+                unique_mapped_coords[position[0]+':'+position[1]] = {'lat':position[0], 'lng':position[1]}
+                record_dict = metaelement.record.as_dict()           
+                unique_mapped_languages |= set(record_dict['language'])
+                mapped_records.append(record_dict)
+            
+            unique_mapped_coords=json.dumps(unique_mapped_coords.values()) # encode for google map plotting.
 
-            #Sort dictionaries to show the ones with more elements first
-            sorted_language=sorted(language_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
-            sorted_contributor=sorted(contributor_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
-            sorted_collections=sorted(collection_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
-
-            ######################## Preparing context to render in template ########################################################
-            #Encode output to json format
-            jsonStr=json.dumps(record_array)
+            ######################## Preparing context to render in template ########################################################     
             context = super(HomeView, self).get_context_data(**kwargs)
             context['communities'] = Community.objects.all()
             context['collections'] = Collection.objects.all().order_by('name')
-            context['jsonStr'] = unicode(jsonStr)
-            context['languages'] = sorted_language
-            context['contributors'] = sorted_contributor
+            context['mapped_records'] = sorted(mapped_records, key=operator.itemgetter('collection'))
+            context['unique_coords'] = unicode(unique_mapped_coords)
+            context['unique_languages'] = sorted(unique_mapped_languages)
+            context['languages'] = sorted(language_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
+            context['contributors'] = sorted(contributor_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
             context['contributor_url'] = contributor_url
             context['default'] = get_object_or_404(Community, identifier='com_10125_4250')
 
@@ -130,7 +128,7 @@ class ItemView(DetailView):
 
     def get_context_data(self, **kwargs):
             context = super(ItemView, self).get_context_data(**kwargs)
-            context['item_dict'] = self.get_object().to_dict()
+            context['item_data'] = self.get_object().sort_metadata_dict(self.get_object().as_dict())
             return context
 
 class LanguageView(TemplateView):
