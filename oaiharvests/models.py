@@ -96,9 +96,13 @@ class Record(TimeStampedModel):
         elements = self.metadataelement_set.all().order_by('element_type')
         for e in elements:
             data = json.loads(e.element_data)
-            if e.element_type == 'coverage':                
-                record_dict['coverage_lat'] = [data[0]]
-                record_dict['coverage_lng'] = [data[1]]
+            if e.element_type == 'coverage': 
+                try:               
+                    record_dict['coverage_lat'] = [data[0]]
+                    record_dict['coverage_lng'] = [data[1]]
+                except:
+                    record_dict['coverage_lat'] = []
+                    record_dict['coverage_lng'] = []
             else:
                 record_dict[e.element_type] = data
         record_dict['collection'] = [self.hdr_setSpec]

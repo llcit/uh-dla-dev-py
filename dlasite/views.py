@@ -2,80 +2,79 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView
 from django.template import RequestContext
 from django.http import HttpResponse
+from collections import Counter, namedtuple
 #For making complex queries
 from django.db.models import Q, Count
-# from sets import Set
+
+import json, operator #operator is used for sorting
+
 from oaiharvests.models import Community, Collection, Record, MetadataElement
 
-import json, collections, operator #operator is used for sorting
+""" A namedtuple to construct unique points to plot """
+Plot = namedtuple('Plot',['lat', 'lng']) 
+
+def make_map_plot(coordinates_metadata):
+    # create a two-item array from metaelement data e.g. [u'7.4278', u'134.5495']
+    position = json.loads(coordinates_metadata)
+    try: 
+        return Plot(position[0], position[1])
+    except:
+        # No plots to create -- empty metadata
+        return None
+
+def make_json_map_plots(plots):
+    # Create a dictionary for each plot to encode as json string.
+    try:
+        plots = [ plot._asdict() for plot in list(plots) ]
+        return json.dumps( plots ) # jsonify for google maps js client.
+    except:
+        return []   
 
 class HomeView(TemplateView):
         template_name = 'home.html'
 
         def get_context_data(self, **kwargs):
-            #arrays to hold values
-            contributor_array = []
-            contributor_count = []
-            language_array = []
-            language_count = []
             mapped_records = []
-            contributor_url = []
-            
-            #Dictionary to hold values and times
-            language_dict = {}
-            contributor_dict = {}
-            
+                       
             #Query and variables for the needed MetadataElments
-            metadata = MetadataElement.objects.all()
+            metadata = MetadataElement.objects.all()   
             
-            languages_meta = metadata.filter(element_type='language')
-            contributor_meta = metadata.filter(element_type='contributor')
+            # Create dictionary with language frequency counts using Counter
+            language_frequencies = Counter()
+            for metaelement in metadata.filter(element_type='language'):
+                language_frequencies.update( json.loads(metaelement.element_data) )           
 
-            # Only retrieve metadata items that have data values set for coverage
-            coverage_meta = metadata.filter(element_type='coverage').exclude(element_data=[])
+            # Create dictionary with contributor frequency counts using Counter
+            contributor_frequencies = Counter()
+            for metaelement in metadata.filter(element_type='contributor'):
+                contributor_frequencies.update( json.loads(metaelement.element_data) )
             
             
-            #Create dicts with frequency counts
-            language_dict = {}
-            for metaelement in languages_meta:
-                language_list=json.loads(metaelement.element_data)              
-                for language in language_list:
-                    if language in language_dict:
-                        language_dict[language] = language_dict[language]+1
-                    else:
-                        language_dict[language] = 1
-            
-            contributor_dict = {}
-            for metaelement in contributor_meta:
-                contributors_list=json.loads(metaelement.element_data)
-                for contributor in contributors_list:
-                    if contributor in contributor_dict:
-                        contributor_dict[contributor] = contributor_dict[contributor]+1
-                    else:
-                        contributor_dict[contributor] = 1
-            
-            unique_mapped_coords = {} # unique coords in mapped records 
-            unique_mapped_languages = set() # unique languages in mapped records         
-            for metaelement in coverage_meta:
-                position = json.loads(metaelement.element_data)              
-                unique_mapped_coords[position[0]+':'+position[1]] = {'lat':position[0], 'lng':position[1]}
-                record_dict = metaelement.record.as_dict()           
-                unique_mapped_languages |= set(record_dict['language'])
+            mapped_plots = set()    # unique coords in mapped records 
+            mapped_languages = set() # unique languages in mapped records         
+
+            # Only retrieve metadata items that have data values set for coverage       
+            for metaelement in metadata.filter(element_type='coverage').exclude(element_data=[]):                       
+                mapped_plots.add( make_map_plot(metaelement.element_data) )
+                record_dict = metaelement.record.as_dict()            
+                
+                mapped_languages |= set(record_dict['language'])
                 mapped_records.append(record_dict)
+
             
-            unique_mapped_coords=json.dumps(unique_mapped_coords.values()) # encode for google map plotting.
+            mapped_plots=make_json_map_plots(mapped_plots) 
 
             ######################## Preparing context to render in template ########################################################     
             context = super(HomeView, self).get_context_data(**kwargs)
             context['communities'] = Community.objects.all()
             context['collections'] = Collection.objects.all().order_by('name')
-            context['mapped_records'] = sorted(mapped_records, key=operator.itemgetter('collection'))
-            context['unique_coords'] = unicode(unique_mapped_coords)
-            context['unique_languages'] = sorted(unique_mapped_languages)
-            context['languages'] = sorted(language_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
-            context['contributors'] = sorted(contributor_dict.iteritems(), key=operator.itemgetter(1),reverse=True)
-            context['contributor_url'] = contributor_url
+            context['languages'] = sorted(language_frequencies.iteritems(), key=operator.itemgetter(1),reverse=True)
+            context['contributors'] = sorted(contributor_frequencies.iteritems(), key=operator.itemgetter(1),reverse=True)
             context['default'] = get_object_or_404(Community, identifier='com_10125_4250')
+
+            context['mapped_records'] = sorted(mapped_records, key=operator.itemgetter('collection'))
+            context['mapped_plots'] = unicode(mapped_plots)
+            context['mapped_languages'] = sorted(mapped_languages)
 
             return context
 
@@ -102,23 +101,28 @@ class CollectionView(DetailView):
 
     def get_context_data(self, **kwargs):
             #arrays to hold values
-            record_array = []
-            for record in self.get_object().list_records():
-                position=json.loads(self.get_object().list_records()[0].get_metadata_item('coverage')[0].element_data)
-                if position:
-                    if position != 'none':
-                        record_array.append(record.get_coordinates(position))
-                # #Get the coordinates for objects with dc_coverage
-                # if record.get_coordinates()['North'] != 'none':
-                #   if record.get_coordinates()['North']!="":
-                #       record_array.append(record.get_coordinates())
-            #Encode output to json format
-            jsonStr=json.dumps(record_array)
-            #Context for the template
+            records = self.get_object().list_records()
+            mapped_plots = set()
+            mapped_languages = set()
+            mapped_records = []
+
+            for record in records:
+                record_dict = record.as_dict()
+                mapped_data = MetadataElement.objects.filter(record=record).filter(element_type='coverage').exclude(element_data=[])                
+                if mapped_data:
+                    mapped_plots.add( make_map_plot( mapped_data[0].element_data ) )
+                    mapped_languages |= set(record_dict['language'])
+                    mapped_records.append(record_dict)
+
+            mapped_plots = make_json_map_plots(mapped_plots)
+
+            # Context for the template
             context = super(CollectionView, self).get_context_data(**kwargs)
-            context['items'] = self.get_object().list_records()
-            context['size'] = len(self.get_object().list_records())
-            context['jsonStr']=unicode(jsonStr)
+            context['items'] = records
+            context['size'] = len(records)
+            context['mapped_records'] = sorted(mapped_records)
+            context['mapped_languages'] = sorted(mapped_languages)
+            context['mapped_plots']=unicode(mapped_plots)
             return context
 
 

@@ -33,7 +33,7 @@
 				<div class="col-md-12"><button id="filter_reset_btn" type="button" class="btn">Show All</button></div>
 				
 				<div class="col-md-12">
-				{% for i in unique_languages %}
+				{% for i in mapped_languages %}
 					<div class="mapped_language_selector" style="padding: 5px; font-color: black; float: left;">{{ i }}</div>
 				{% endfor %}
 				</div>	
@@ -161,7 +161,7 @@
 {% block js_script %}
 	<script type="text/javascript">
 		//Get the coordinates info and data from the records inside the DOM
-        var json = {{ unique_coords|safe }};
+        var json = {{ mapped_plots|safe }};
     </script>
 {% endblock js_script %} 
   
