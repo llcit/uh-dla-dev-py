@@ -4,7 +4,7 @@
 {% block page_header %}<small>{{ object }}</small>{% endblock page_header %}
 
 {% block content %}
-	{% for k,v in item_data %}
+	{% for k,v in item_data.items %}
 		<h5>
 			<i>{{ k }}</i>: 
 			{%for i in v %}	

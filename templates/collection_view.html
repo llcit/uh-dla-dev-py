@@ -9,11 +9,11 @@
 
 	<div class="row">
 		<div class="col-md-12">
-			<h2>Globe Trekker</h2>	
+			<!-- <h2>Globe Trekker</h2>	 -->
 		</div>
 
 		<!-- Google Map display panel -->
-		<div class="col-md-6"><div id="map-canvas"></div></div>
+		<div class="col-md-6"><div id="map-canvas" style="width: 100%"></div></div>
 
 		<!-- Google Map view controller -->
 		<div id="mapped_records_selector" class="col-md-6">
@@ -57,7 +57,7 @@
 		<div class="col-md-12">
 			<div class="panel panel-default my-inner">
 				<div class="panel-heading"><h4>Search in {{object}}</h4></div>
-				<form action="{% url "search" %}" method="POST">{% csrf_token %}
+				<form action="{% url 'search' %}" method="POST">{% csrf_token %}
 					<ul class="nav nav-pills nav-justified">
 					  <li class="dropdown">
 					  	<select name='query' class="form-control" id='query'>
@@ -82,6 +82,7 @@
 				</form>
 			</div>
 		</div>
+	</div>
 
 	<div class="row">
 		<div class="col-md-12 my-inner">
@@ -123,27 +124,26 @@
 							<div class="panel panel-default">
 							    <div class="panel-heading">
 							      <h4 class="panel-title">
-							        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne{{forloop.counter0}}">
-							          <h5>{{forloop.counter}} {{ i }}</h5>
-							        </a>
+							        <span data-toggle="collapse" data-parent="#accordion" href="#collapseOne{{forloop.counter0}}">
+							          {{forloop.counter}}. <span>{{ i.as_dict.title.0 }}</span> <span class="small">{{ i.as_dict.description.0 }}</span>
+							        </span>
+							        <a href="{{ i.get_absolute_url }}"> <i class="fa fa-external-link"></i></a>
 							      </h4>
 							    </div>
+							    
 							    <div id="collapseOne{{forloop.counter0}}" class="panel-collapse collapse">
-							      <div class="panel-body">
-							        <ul>
-							 			<li><a href="{{ i.get_absolute_url }}"> <b> Record URL </b> <hr> </a></li>
-							 			
-										{% for key, values in i.to_dict.items %}
-											<li><b>{{ key }}: </b> 
+									<div class="panel-body">											
+										{% for key, values in i.as_dict.items %}
+											<h6>
+												<b>{{ key }}: </b> 
 												{%for j in values %}
 													<span> {{ j|urlize }}{% if not forloop.last %};{% endif %} </span>
-												{% endfor %}</li>
-											<hr>
+												{% endfor %}
+											</h6>
 										{% endfor %}
-									</ul>
-							      </div>
+									</div>
 							    </div>
-							  </div>
+							</div>
 					{% endfor %}
 				</div>
 			</div>

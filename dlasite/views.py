@@ -132,7 +132,7 @@ class ItemView(DetailView):
 
     def get_context_data(self, **kwargs):
             context = super(ItemView, self).get_context_data(**kwargs)
-            context['item_data'] = self.get_object().sort_metadata_dict(self.get_object().as_dict())
+            context['item_data'] = self.get_object().as_dict()
             return context
 
 class LanguageView(TemplateView):
@@ -220,5 +220,28 @@ class SearchView(ListView):
             context['key'] = self.key
             # pdb.set_trace()
             return context
+
+
+class RecordSearchMixin(object):
+
+    def get_queryset(self):
+        queryset = super(RecordSearchMixin, self).get_queryset()
+
+        key = self.request.GET.get('key')
+        filteropt = self.request.GET.get('filteropts')
+
+        if key:
+            return queryset.filter(metadataelement__element_type=filteropt).filter(metadataelement__element_data__icontains=key)
+        
+        return None
+
+class SearchPage(RecordSearchMixin, ListView):
+    model = Record
+    template_name = 'searchtest.html'
+
+    # def get_context_data(self, **kwargs):
+    #         context = super(SearchPage, self).get_context_data(**kwargs)
+    #         context ['results'] = self.results
+    #         return context
 
 

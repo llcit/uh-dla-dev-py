@@ -11,7 +11,8 @@ from dlasite.views import (
   ItemView, 
   LanguageView, 
   ContributorView, 
-  SearchView
+  SearchView,
+  SearchPage
 )
 
 from oaiharvests.views import (
@@ -60,6 +61,8 @@ urlpatterns = patterns('',
                        url(r'^search/$',
                           SearchView.as_view(), name='search'),
 
+                       url(r'^searchtest/$',
+                          SearchPage.as_view(), name='searchtest'),
 
 
                        # ---------- OAI HARVESTER VIEWS ------------- #

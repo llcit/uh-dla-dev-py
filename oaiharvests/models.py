@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.urlresolvers import reverse
-
 from model_utils.models import TimeStampedModel
+from collections import OrderedDict
 
 import json, operator
 import pdb #pdb.set_trace()
@@ -89,7 +89,7 @@ class Record(TimeStampedModel):
 
     """Sort record dictionary by key"""
     def sort_metadata_dict(self, record_dict):
-        return sorted(record_dict.items(), key=operator.itemgetter(0))
+        return OrderedDict(sorted(record_dict.items(), key=lambda t: t[0]))
 
     def as_dict(self):
         record_dict = {}
@@ -107,7 +107,7 @@ class Record(TimeStampedModel):
                 record_dict[e.element_type] = data
         record_dict['collection'] = [self.hdr_setSpec]
         record_dict['site_url'] = [self.get_absolute_url()]
-        return record_dict
+        return self.sort_metadata_dict(record_dict)
 
     """Function to get the coordinates of the element to plot in map """
     def get_coordinates(self, json_position):

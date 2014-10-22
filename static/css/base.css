@@ -70,6 +70,10 @@ ul {
   margin: 10px 1px 1px 1px;
 }
 
+.list-group-item.hilite_row {
+  background-color: #B2D1B2
+}
+
 #search {
   border: 1px solid black;
   padding: 1px;
