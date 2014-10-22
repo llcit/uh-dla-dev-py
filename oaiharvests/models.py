@@ -72,20 +72,23 @@ class Record(TimeStampedModel):
         MetadataElement.objects.filter(record=self).delete()
         return
 
+    def get_metadata_item(self, e_type):
+        return self.data.filter(element_type=e_type)
+
     def metadata_items(self):
-        return self.metadataelement_set.all()
+        return self.data.all()
 
     def metadata_items_json(self):
         json_metadata = {}
-        elements = self.metadataelement_set.all()
-        for metadata in elements:
-            if json.loads(metadata.element_data):
-                json_metadata[metadata.element_type]=(json.loads(metadata.element_data)[0])
+        for e in self.metadata_items():
+            jsonobj = json.loads(e.element_data)
+            if jsonobj:
+                json_metadata[e.element_type]=jsonobj
+            else:
+                json_metadata[e.element_type]=['']
         
         return json_metadata
 
-    def get_metadata_item(self, e_type):
-        return self.metadata_items().filter(element_type=e_type)
 
     """Sort record dictionary by key"""
     def sort_metadata_dict(self, record_dict):
@@ -93,7 +96,7 @@ class Record(TimeStampedModel):
 
     def as_dict(self):
         record_dict = {}
-        elements = self.metadataelement_set.all().order_by('element_type')
+        elements = self.data.all().order_by('element_type')
         for e in elements:
             data = json.loads(e.element_data)
             if e.element_type == 'coverage': 
@@ -129,7 +132,7 @@ class Record(TimeStampedModel):
 class MetadataElement(models.Model):
 
     """A tuple containing an element_type (dublin core) and its data"""
-    record = models.ForeignKey(Record, null=True)
+    record = models.ForeignKey(Record, null=True, related_name='data')
     element_type = models.CharField(max_length=256)
     element_data = models.TextField(default='')
 

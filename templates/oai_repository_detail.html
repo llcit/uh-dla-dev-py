@@ -30,7 +30,8 @@
 			<h5>
 				<small><a href="{% url 'oai_collection_edit' j.identifier %}">edit</a></small>
 				<small><a href="{% url 'oai_collection_delete' j.identifier %}">remove</a></small>
-				<a href="{{ j.get_absolute_url }}">{{ j.name }}</a>
+				<small><a href="{% url 'oai_harvest_collection' j.identifier %}">manage</a></small>
+				{{ j.name }}
 				<small> {{ j.identifier }} </small>
 			</h5>
 		{% endfor %}
